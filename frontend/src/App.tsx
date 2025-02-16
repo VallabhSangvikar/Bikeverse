@@ -4,8 +4,7 @@ import Footer from "./components/Footer"
 import HomePage from "./pages/HomePage"
 import ProductListingPage from "./pages/ProductListingPage"
 import ProductDetailsPage from "./pages/ProductDetailsPage"
-import CartPage from "./pages/CartPage"
-import CheckoutPage from "./pages/CheckoutPage"
+import BookingForm from "./pages/BookingForm"
 import SellerDashboardPage from "./pages/SellerDashboardPage"
 import BuyerDashboardPage from "./pages/BuyerDashboardPage"
 import LoginPage from "./pages/LoginPage"
@@ -21,8 +20,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductListingPage />} />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/book/:id" element={<BookingForm />} />
+          <Route path="/bookings" element={<ProductListingPage />} /> 
           <Route path="/seller" element={<SellerDashboardPage />} />
           <Route path="/dashboard" element={<BuyerDashboardPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -36,4 +35,3 @@ function App() {
 }
 
 export default App
-

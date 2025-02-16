@@ -1,59 +1,79 @@
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { Input } from "../components/ui/input"
-import { Button } from "../components/ui/button"
-import { Select } from "../components/ui/select"
-import { Card, CardContent, CardFooter } from "../components/ui/card"
-import { fetchProducts } from "../services/productService"
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardFooter } from "../components/ui/card";
+import { fetchProducts } from "../services/productService";
+
+// Define the Product interface
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+}
 
 const ProductListingPage = () => {
-  const [products, setProducts] = useState([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [category, setCategory] = useState("all")
-  const [sortBy, setSortBy] = useState("name")
+  const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProducts = async () => {
-      const fetchedProducts = await fetchProducts()
-      setProducts(fetchedProducts)
-    }
-    loadProducts()
-  }, [])
+      const fetchedProducts: Product[] = await fetchProducts();
+      setProducts(fetchedProducts);
+    };
+    loadProducts();
+  }, []);
 
   const filteredProducts = products
     .filter(
       (product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (category === "all" || product.category === category),
+        (category === "all" || product.category === category)
     )
     .sort((a, b) => {
-      if (sortBy === "name") return a.name.localeCompare(b.name)
-      if (sortBy === "price") return a.price - b.price
-      return 0
-    })
+      if (sortBy === "name") return a.name.localeCompare(b.name);
+      if (sortBy === "price") return a.price - b.price;
+      return 0;
+    });
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Our Products</h1>
+      <h1 className="text-3xl font-bold mb-8">Available Bikes</h1>
 
       <div className="flex flex-wrap gap-4 mb-8">
         <Input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search bikes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full md:w-64"
         />
-        <Select value={category} onValueChange={setCategory} className="w-full md:w-48">
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full md:w-48 border border-gray-300 rounded p-2"
+        >
           <option value="all">All Categories</option>
           <option value="motorcycle">Motorcycles</option>
           <option value="scooter">Scooters</option>
           <option value="electric">Electric Bikes</option>
-        </Select>
-        <Select value={sortBy} onValueChange={setSortBy} className="w-full md:w-48">
+        </select>
+
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="w-full md:w-48 border border-gray-300 rounded p-2"
+        >
           <option value="name">Sort by Name</option>
           <option value="price">Sort by Price</option>
-        </Select>
+        </select>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -66,21 +86,22 @@ const ProductListingPage = () => {
                 className="w-full h-48 object-cover mb-4"
               />
               <h2 className="text-lg font-semibold mb-2">{product.name}</h2>
-              <p className="text-gray-600 mb-2">${product.price}</p>
+              <p className="text-gray-600 mb-2">${product.price} per day</p>
             </CardContent>
             <CardFooter>
-              <Link to={`/product/${product.id}`} className="w-full">
-                <Button variant="outline" className="w-full">
-                  View Details
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate(`/book/${product.id}`)}
+              >
+                Book Now
+              </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductListingPage
-
+export default ProductListingPage;
