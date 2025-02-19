@@ -6,7 +6,6 @@ import { ShoppingCart } from "lucide-react"
 
 const Header = () => {
   const { user, logout } = useAuth()
-  const { items } = useCart()
 
   return (
     <header className="bg-white shadow-md">
@@ -51,11 +50,6 @@ const Header = () => {
             <li>
               <Link to="/cart" className="relative">
                 <ShoppingCart className="h-6 w-6" />
-                {items.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                    {items.length}
-                  </span>
-                )}
               </Link>
             </li>
           </ul>

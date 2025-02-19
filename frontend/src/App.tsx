@@ -15,8 +15,6 @@ import { BookingProvider } from "./context/BookingContext";  // Ensuring Context
 
 function App() {
   return (
-    <Router>
-      <BookingProvider>  {/* Ensuring Booking Context is Available */}
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow">
@@ -37,8 +35,6 @@ function App() {
           <Footer />
           <Toaster />
         </div>
-      </BookingProvider>
-    </Router>
   );
 }
 
