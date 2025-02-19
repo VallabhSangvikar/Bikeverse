@@ -1,32 +1,47 @@
-import { useState, useEffect } from "react"
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Label } from "../components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { fetchSellerProducts, fetchSellerOrders, fetchSellerAnalytics } from "../services/sellerService"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts"
+import { useState, useEffect } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { fetchSellerProducts, fetchSellerOrders, fetchSellerAnalytics } from "../services/sellerService";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
 const SellerDashboardPage = () => {
-  const [products, setProducts] = useState([])
-  const [orders, setOrders] = useState([])
-  const [analytics, setAnalytics] = useState(null)
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadSellerData = async () => {
-      const fetchedProducts = await fetchSellerProducts()
-      const fetchedOrders = await fetchSellerOrders()
-      const fetchedAnalytics = await fetchSellerAnalytics()
-      setProducts(fetchedProducts)
-      setOrders(fetchedOrders)
-      setAnalytics(fetchedAnalytics)
-    }
-    loadSellerData()
-  }, [])
+      try {
+        setLoading(true);
+        const [fetchedProducts, fetchedOrders, fetchedAnalytics] = await Promise.all([
+          fetchSellerProducts(),
+          fetchSellerOrders(),
+          fetchSellerAnalytics(),
+        ]);
+        setProducts(fetchedProducts || []);
+        setOrders(fetchedOrders || []);
+        setAnalytics(fetchedAnalytics || { totalSales: 0, totalOrders: 0, averageOrderValue: 0, monthlyRevenue: [] });
+      } catch (err) {
+        setError("Failed to load data. Please try again later.");
+        console.error("Error fetching seller data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadSellerData();
+  }, []);
 
   const handleAddProduct = (e) => {
-    e.preventDefault()
-    // Add product logic here
-  }
+    e.preventDefault();
+    // Implement product addition logic
+  };
+
+  if (loading) return <div className="text-center py-10">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -51,12 +66,8 @@ const SellerDashboardPage = () => {
                 <p className="text-gray-600">${product.price}</p>
                 <p className="text-gray-600">Stock: {product.stock}</p>
                 <div className="mt-4 space-x-2">
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                  <Button variant="destructive" size="sm">
-                    Delete
-                  </Button>
+                  <Button variant="outline" size="sm">Edit</Button>
+                  <Button variant="destructive" size="sm">Delete</Button>
                 </div>
               </div>
             ))}
@@ -109,18 +120,16 @@ const SellerDashboardPage = () => {
           <h2 className="text-2xl font-semibold mb-4">Sales Analytics</h2>
           {analytics && (
             <div>
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-2">Monthly Revenue</h3>
-                <LineChart width={600} height={300} data={analytics.monthlyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
-                </LineChart>
-              </div>
-              <div className="grid md:grid-cols-3 gap-6">
+              <h3 className="text-xl font-semibold mb-2">Monthly Revenue</h3>
+              <LineChart width={600} height={300} data={analytics.monthlyRevenue}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
+              </LineChart>
+              <div className="grid md:grid-cols-3 gap-6 mt-4">
                 <div className="bg-blue-100 p-4 rounded-lg">
                   <h4 className="text-lg font-semibold mb-2">Total Sales</h4>
                   <p className="text-3xl font-bold">${analytics.totalSales}</p>
@@ -139,8 +148,7 @@ const SellerDashboardPage = () => {
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
+  );
+};
 
-export default SellerDashboardPage
-
+export default SellerDashboardPage;

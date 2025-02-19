@@ -4,17 +4,16 @@ import { BrowserRouter as Router } from "react-router-dom"
 import App from "./App"
 import "./index.css"
 import { AuthProvider } from "./context/AuthContext"
-import { CartProvider } from "./context/CartContext"
+import { BookingProvider } from "./context/BookingContext" // Ensure correct import
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Router>
       <AuthProvider>
-        <CartProvider>
+        <BookingProvider> {/* Corrected from CartProvider to BookingProvider */}
           <App />
-        </CartProvider>
+        </BookingProvider>
       </AuthProvider>
     </Router>
   </React.StrictMode>,
 )
-

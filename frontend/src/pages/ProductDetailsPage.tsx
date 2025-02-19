@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { Button } from "../components/ui/button"
-import { useCart } from "../context/CartContext"
+import { useCart } from "../context/BookingContext"
 import { fetchProductById } from "../services/productService"
 import { Star, Plus, Minus } from "lucide-react"
 
