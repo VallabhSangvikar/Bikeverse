@@ -33,6 +33,12 @@ export const roleCheck = (roles: string[]) => {
             next(new HttpException(403, 'Access forbidden'));
             return;
         }
+        if(req.user.role=="seller"){
+            req.body.seller=req.user.id;
+        }
+        if(req.user.role=="buyer"){
+            req.body.buyer=req.user.id;
+        }
         next();
     };
 };

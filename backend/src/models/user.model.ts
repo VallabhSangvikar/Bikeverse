@@ -37,7 +37,9 @@ const UserSchema: Schema = new Schema({
     businessType: { 
         type: String, 
         enum: ['showroom', 'individual'],
-        required: function() { return this.role === 'seller'; }
+        required: function(this: IUser) { 
+            return this.role === 'seller';
+        }
     },
     address: {
         street: String,

@@ -15,6 +15,9 @@ app.use(helmet());
 app.use(express.json());
 
 // Routes
+app.get('/', (req, res) => {
+    res.send('BikeVerse API');
+});
 import routes from './routes';
 app.use('/api', routes);
 

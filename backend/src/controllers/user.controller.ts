@@ -3,13 +3,19 @@ import { BaseController } from './base/base.controller';
 import { UserService } from '../services/user.service';
 import { IUser } from '../models/user.model';
 import bcrypt from 'bcryptjs';
-import jwt,{Secret} from 'jsonwebtoken';
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h"; // Default value
+import jwt, { SignOptions } from 'jsonwebtoken';
 
+// Type-safe JWT configuration
+const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-    throw new Error("Missing JWT_SECRET in environment variables");
+    throw new Error('JWT_SECRET must be defined in environment variables');
 }
+
+// Define expiresIn with proper type
+const expiresIn = process.env.JWT_EXPIRES_IN || '24h';
+const jwtOptions: SignOptions = {
+    expiresIn: expiresIn as jwt.SignOptions['expiresIn']
+};
 
 export class UserController extends BaseController<IUser> {
     private userService: UserService;
@@ -27,11 +33,10 @@ export class UserController extends BaseController<IUser> {
                 ...req.body,
                 password: hashedPassword
             });
-            
             const token = jwt.sign(
                 { id: user._id, role: user.role },
-                JWT_SECRET as Secret ,
-                { expiresIn: JWT_EXPIRES_IN}
+                JWT_SECRET as jwt.Secret,
+                jwtOptions
             );
             
             res.status(201).json({ user, token });
@@ -52,8 +57,8 @@ export class UserController extends BaseController<IUser> {
             
             const token = jwt.sign(
                 { id: user._id, role: user.role },
-                JWT_SECRET as Secret ,
-                { expiresIn: JWT_EXPIRES_IN }
+                JWT_SECRET as jwt.Secret,
+                jwtOptions
             );
             
             res.json({ user, token });

@@ -30,7 +30,7 @@ export class UserService extends BaseService<IUser> {
     }
 
     async updateVerificationStatus(userId: string, status: 'pending' | 'verified' | 'rejected'): Promise<IUser> {
-        const user = await User.findById(userId);
+        const user:any = await User.findById(userId);
         if (!user) {
             throw new HttpException(404, 'User not found');
         }
@@ -54,7 +54,7 @@ export class UserService extends BaseService<IUser> {
     }
 
     async updateDocuments(userId: string, documents: { idProof?: string; businessLicense?: string }): Promise<IUser> {
-        const user = await User.findById(userId);
+        const user:any = await User.findById(userId);
         if (!user) {
             throw new HttpException(404, 'User not found');
         }

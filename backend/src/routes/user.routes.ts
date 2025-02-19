@@ -7,11 +7,11 @@ import { uploadMiddleware } from '../middleware/upload.middleware';
 const router = Router();
 const userController = new UserController();
 
-router.post('/register', validateUser, userController.register);
-router.post('/login', userController.login);
-router.get('/profile', authMiddleware, userController.getProfile);
-router.put('/profile', authMiddleware, validateUser, userController.updateProfile);
-router.get('/users', authMiddleware, roleCheck(['admin']), userController.getAll);
+router.post('/register', validateUser, userController.register.bind(userController));
+router.post('/login', userController.login.bind(userController));
+router.get('/profile', authMiddleware, userController.getProfile.bind(userController));
+router.put('/profile', authMiddleware, validateUser, userController.updateProfile.bind(userController));
+router.get('/users', authMiddleware, roleCheck(['admin']), userController.getAll.bind(userController));
 
 // Seller verification routes
 router.post(

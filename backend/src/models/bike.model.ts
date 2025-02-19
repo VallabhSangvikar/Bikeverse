@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IBike extends Document {
     title: string;
     brand: string;
-    model: string;
+    bikeModel: string;
     year: number;
     category: string;
     description: string;
@@ -45,7 +45,7 @@ export interface IBike extends Document {
 const BikeSchema: Schema = new Schema({
     title: { type: String, required: true },
     brand: { type: String, required: true },
-    model: { type: String, required: true },
+    bikeModel: { type: String, required: true },
     year: { type: Number, required: true },
     category: { 
         type: String, 
