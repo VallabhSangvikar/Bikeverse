@@ -1,11 +1,9 @@
-module.exports = {
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    roots: ['<rootDir>/src'],
-    testMatch: ['**/*.test.ts'],
-    transform: {
-        '^.+\\.tsx?$': 'ts-jest'
-    },
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-    setupFiles: ['dotenv/config']
+export const preset = 'ts-jest';
+export const testEnvironment = 'node';
+export const roots = ['<rootDir>/src'];
+export const testMatch = ['**/*.test.ts'];
+export const transform = {
+    '^.+\\.tsx?$': 'ts-jest'
 };
+export const moduleFileExtensions = ['ts', 'tsx', 'js', 'jsx', 'json', 'node'];
+export const setupFiles = ['dotenv/config'];

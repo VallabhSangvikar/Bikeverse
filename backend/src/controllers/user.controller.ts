@@ -3,7 +3,13 @@ import { BaseController } from './base/base.controller';
 import { UserService } from '../services/user.service';
 import { IUser } from '../models/user.model';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt,{Secret} from 'jsonwebtoken';
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h"; // Default value
+
+if (!JWT_SECRET) {
+    throw new Error("Missing JWT_SECRET in environment variables");
+}
 
 export class UserController extends BaseController<IUser> {
     private userService: UserService;
@@ -24,8 +30,8 @@ export class UserController extends BaseController<IUser> {
             
             const token = jwt.sign(
                 { id: user._id, role: user.role },
-                process.env.JWT_SECRET!,
-                { expiresIn: process.env.JWT_EXPIRES_IN }
+                JWT_SECRET as Secret ,
+                { expiresIn: JWT_EXPIRES_IN}
             );
             
             res.status(201).json({ user, token });
@@ -46,8 +52,8 @@ export class UserController extends BaseController<IUser> {
             
             const token = jwt.sign(
                 { id: user._id, role: user.role },
-                process.env.JWT_SECRET!,
-                { expiresIn: process.env.JWT_EXPIRES_IN }
+                JWT_SECRET as Secret ,
+                { expiresIn: JWT_EXPIRES_IN }
             );
             
             res.json({ user, token });
@@ -85,6 +91,27 @@ export class UserController extends BaseController<IUser> {
         try {
             const users = await this.userService.findPendingVerifications();
             res.json(users);
+        } catch (error) {
+            next(error);
+        }
+    }
+    async getProfile(req: Request, res: Response, next: NextFunction) {
+        try {
+            const user = await this.userService.findById(req.user.id);
+            if (!user) {
+                res.status(404).json({ message: 'User not found' });
+                return;
+            }
+            res.json(user);
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    async updateProfile(req: Request, res: Response, next: NextFunction) {
+        try {
+            const updatedUser = await this.userService.update(req.user.id, req.body);
+            res.json(updatedUser);
         } catch (error) {
             next(error);
         }
