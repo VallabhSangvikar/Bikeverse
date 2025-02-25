@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { useCart } from "../context/BookingContext"
-import { Button } from "./ui/button"
-import { ShoppingCart } from "lucide-react"
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useBooking } from "../context/BookingContext"; // Use correct context
+import { Button } from "./ui/button";
+import { Calendar } from "lucide-react";
 
 const Header = () => {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
+  const { bookings } = useBooking(); // Get bookings from context
 
   return (
     <header className="bg-white shadow-md">
@@ -23,7 +24,10 @@ const Header = () => {
             {user ? (
               <>
                 <li>
-                  <Link to={user.role === "seller" ? "/seller" : "/dashboard"} className="hover:text-primary">
+                  <Link
+                    to={user.role === "seller" ? "/seller" : "/dashboard"}
+                    className="hover:text-primary"
+                  >
                     Dashboard
                   </Link>
                 </li>
@@ -47,17 +51,18 @@ const Header = () => {
                 </li>
               </>
             )}
+            {/* Booking system instead of cart */}
             <li>
-              <Link to="/cart" className="relative">
-                <ShoppingCart className="h-6 w-6" />
+              <Link to="/bookings" className="relative flex items-center space-x-2">
+                <Calendar className="w-6 h-6 text-primary" />
+                <span>Bookings ({bookings.length})</span>
               </Link>
             </li>
           </ul>
         </nav>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
-
+export default Header;

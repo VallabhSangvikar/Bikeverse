@@ -1,29 +1,35 @@
-import { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
-import { Button } from "../components/ui/button"
-import { useCart } from "../context/BookingContext"
-import { fetchProductById } from "../services/productService"
-import { Star, Plus, Minus } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { useBooking } from "../context/BookingContext"; // Changed from useCart to useBooking
+import { fetchProductById } from "../services/productService";
+import { Star, Plus, Minus } from "lucide-react";
 
 const ProductDetailsPage = () => {
-  const { id } = useParams()
-  const [product, setProduct] = useState(null)
-  const [quantity, setQuantity] = useState(1)
-  const { addToCart } = useCart()
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const { addBooking } = useBooking(); // Changed from addToCart to addBooking
 
   useEffect(() => {
     const loadProduct = async () => {
-      const fetchedProduct = await fetchProductById(id)
-      setProduct(fetchedProduct)
-    }
-    loadProduct()
-  }, [id])
+      const fetchedProduct = await fetchProductById(id);
+      setProduct(fetchedProduct);
+    };
+    loadProduct();
+  }, [id]);
 
-  if (!product) return <div>Loading...</div>
+  if (!product) return <div>Loading...</div>;
 
-  const handleAddToCart = () => {
-    addToCart({ ...product, quantity })
-  }
+  const handleAddToBooking = () => {
+    addBooking({
+      id: product.id,
+      name: product.name,
+      service: product,
+      date: new Date().toISOString(), // Placeholder date; update with actual selection if needed
+      price: product.price,
+    });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -54,11 +60,11 @@ const ProductDetailsPage = () => {
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <Button onClick={handleAddToCart} className="w-full mb-4">
-            Add to Cart
+          <Button onClick={handleAddToBooking} className="w-full mb-4">
+            Add to Booking
           </Button>
           <Button variant="secondary" className="w-full">
-            Buy Now
+            Book Now
           </Button>
         </div>
       </div>
@@ -92,8 +98,7 @@ const ProductDetailsPage = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductDetailsPage
-
+export default ProductDetailsPage;

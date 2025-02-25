@@ -2,9 +2,9 @@ import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define the shape of the booking context
 interface Booking {
-  service: ReactNode;
   id: string;
   name: string;
+  service: any;
   date: string;
   price: number;
 }
@@ -14,7 +14,6 @@ interface BookingContextType {
   addBooking: (booking: Booking) => void;
   removeBooking: (id: string) => void;
   clearBookings: () => void;
-
 }
 
 // Create context with default values
@@ -54,8 +53,5 @@ export const useBooking = (): BookingContextType => {
   }
   return context;
 };
-
-// If you need a cart-specific hook
-export const useCart = useBooking; // ✅ Fix for "useCart not exported" error
 
 export default BookingContext;
