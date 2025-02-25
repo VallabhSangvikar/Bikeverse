@@ -41,7 +41,7 @@ const BookPage = () => {
             ))}
           </div>
 
-          {/* ✅ Fix: navigate function now works */}
+         
           <Button className="mt-6 w-full" onClick={() => navigate("/bikes")}>
             Book a Bike
           </Button>
