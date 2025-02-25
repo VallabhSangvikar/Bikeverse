@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // ✅ Import useNavigate
 import { useBooking } from "../context/BookingContext";
 import { Button } from "../components/ui/button";
 import { Trash2, Calendar } from "lucide-react";
 
 const BookPage = () => {
   const { bookings, removeBooking } = useBooking();
+  const navigate = useNavigate(); // ✅ Define navigate
 
   const total = bookings.reduce((sum, booking) => sum + booking.price, 0);
 
@@ -38,6 +39,11 @@ const BookPage = () => {
               </div>
             ))}
           </div>
+
+          {/* ✅ Fix: navigate function now works */}
+          <Button className="mt-6 w-full" onClick={() => navigate("/bikes")}>
+            Book a Bike
+          </Button>
 
           <div>
             <div className="bg-gray-100 p-6 rounded-lg">

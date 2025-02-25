@@ -12,6 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage"; 
 import { Toaster } from "./components/ui/toaster";
 import { BookingProvider } from "./context/BookingContext";  // Ensuring Context Wrapping
+import BikesPage from "./pages/BikesPage";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="/dashboard" element={<BuyerDashboardPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/bikes" element={<BikesPage />} />
             </Routes>
           </main>
           <Footer />
