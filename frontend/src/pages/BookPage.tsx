@@ -3,6 +3,7 @@ import { useBooking } from "../context/BookingContext";
 import { Button } from "../components/ui/button";
 import { Trash2, Calendar } from "lucide-react";
 
+
 const BookPage = () => {
   const { bookings, removeBooking } = useBooking();
   const navigate = useNavigate(); // ✅ Define navigate

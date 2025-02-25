@@ -12,7 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage"; 
 import { Toaster } from "./components/ui/toaster";
 import { BookingProvider } from "./context/BookingContext";  // Ensuring Context Wrapping
-import BikesPage from "./pages/BikesPage";
+import ServicesPage from "./pages/ServicesPage";  
 
 function App() {
   return (
@@ -26,12 +26,12 @@ function App() {
               
               <Route path="/book/:id" element={<BookingForm />} />  
               <Route path="/bookings" element={<BookingPage />} /> {/* Dedicated Booking Page */}
+              <Route path="/services" element={<ServicesPage />} />
             
               <Route path="/seller" element={<SellerDashboardPage />} />
               <Route path="/dashboard" element={<BuyerDashboardPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
-              <Route path="/bikes" element={<BikesPage />} />
             </Routes>
           </main>
           <Footer />
