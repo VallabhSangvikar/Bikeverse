@@ -25,7 +25,12 @@ app.use('/api', routes);
 app.use(errorMiddleware);
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce')
+const mongoUri = process.env.MONGODB_URI;
+if (!mongoUri) {
+    throw new Error('MONGODB_URI is not defined in environment variables');
+}
+
+mongoose.connect(mongoUri)
     .then(() => {
         console.log('Connected to MongoDB');
         // Start server
