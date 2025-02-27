@@ -41,6 +41,7 @@ export class UserController extends BaseController<IUser> {
             
             res.status(201).json({ user, token });
         } catch (error) {
+            console.log(error);
             next(error);
         }
     }
