@@ -68,21 +68,6 @@ export class UserController extends BaseController<IUser> {
         }
     }
 
-    async uploadDocuments(req: Request, res: Response, next: NextFunction) {
-        try {
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-            const documentUrls = {
-                idProof: files.idProof ? files.idProof[0].path : undefined,
-                businessLicense: files.businessLicense ? files.businessLicense[0].path : undefined
-            };
-
-            const user = await this.userService.updateDocuments(req.user.id, documentUrls);
-            res.json(user);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     async verifyUser(req: Request, res: Response, next: NextFunction) {
         try {
             const { userId, status } = req.body;
@@ -122,16 +107,5 @@ export class UserController extends BaseController<IUser> {
             next(error);
         }
     }
-    async setup(req: Request, res: Response, next: NextFunction) {
-        try {
-            if(req.user.setup) {
-                res.status(400).json({ message: 'User has already completed setup' });
-            }
-            
-            const user = await this.userService.update(req.user.id, { setup: true, ...req.body });
-            res.json(user);
-        } catch (error) {
-            next(error);
-        }
-    }
+    
 }
