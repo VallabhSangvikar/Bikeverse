@@ -122,4 +122,16 @@ export class UserController extends BaseController<IUser> {
             next(error);
         }
     }
+    async setup(req: Request, res: Response, next: NextFunction) {
+        try {
+            if(req.user.setup) {
+                res.status(400).json({ message: 'User has already completed setup' });
+            }
+            
+            const user = await this.userService.update(req.user.id, { setup: true, ...req.body });
+            res.json(user);
+        } catch (error) {
+            next(error);
+        }
+    }
 }

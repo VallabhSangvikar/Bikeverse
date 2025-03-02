@@ -1,12 +1,31 @@
 import type React from "react"
 import { createContext, useState, useContext, useEffect } from "react"
 
+// Interface matching the MongoDB Schema
 interface User {
   id: string
-  name: string
   email: string
-  role: "buyer" | "seller"
-  verified?: boolean
+  role: "buyer" | "seller" | "admin"
+  name: string
+  phone?: string
+  setup: boolean
+  businessType?: "showroom" | "individual"
+  address?: {
+    street?: string
+    city?: string
+    state?: string
+    pincode?: string
+    coordinates?: {
+      latitude?: number
+      longitude?: number
+    }
+  }
+  documents?: {
+    idProof?: string
+    businessLicense?: string
+    verificationStatus: "pending" | "verified" | "rejected"
+  }
+  rating?: number
 }
 
 interface AuthResponse {
@@ -14,11 +33,33 @@ interface AuthResponse {
   token: string
 }
 
+interface UpdateUserData {
+  name?: string
+  phone?: string
+  address?: {
+    street?: string
+    city?: string
+    state?: string
+    pincode?: string
+    coordinates?: {
+      latitude?: number
+      longitude?: number
+    }
+  }
+  businessType?: "showroom" | "individual"
+  documents?: {
+    idProof?: string
+    businessLicense?: string
+  }
+  setup?: boolean
+}
+
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   signup: (name: string, email: string, password: string, role: "buyer" | "seller") => Promise<void>
+  updateUserSetup: (data: UpdateUserData) => Promise<void>
   isLoading: boolean
 }
 
@@ -50,15 +91,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!response.ok) throw new Error('Login failed')
 
       const data: AuthResponse = await response.json();
-      const userData: User = {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        role: data.user.role,
-        verified: data.user.verified
-      };
       localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('user', JSON.stringify(data.user))
       setUser(data.user)
     } catch (error) {
       throw new Error('Login failed')
@@ -76,19 +110,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!response.ok) throw new Error('Signup failed')
 
       const data: AuthResponse = await response.json()
-      // Ensure we only use the necessary user fields
-      const userData: User = {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        role: data.user.role,
-        verified: data.user.verified
-      };
       localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('user', JSON.stringify(data.user))
       setUser(data.user)
     } catch (error) {
       throw new Error('Signup failed')
+    }
+  }
+
+  const updateUserSetup = async (userData: UpdateUserData) => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) throw new Error('Authentication required')
+      
+      const response = await fetch(`${API_URL}/auth/setup`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(userData),
+      })
+
+      if (!response.ok) throw new Error('Failed to update user profile')
+
+      const updatedUser = await response.json()
+      
+      // Update local storage and state with the updated user data
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      setUser(updatedUser)
+    } catch (error) {
+      throw new Error('Profile update failed')
     }
   }
 
@@ -99,7 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, updateUserSetup, isLoading }}>
       {children}
     </AuthContext.Provider>
   )
@@ -112,4 +164,3 @@ export const useAuth = () => {
   }
   return context
 }
-
