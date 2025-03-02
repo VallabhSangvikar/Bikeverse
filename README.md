@@ -26,8 +26,8 @@ Before setting up the project, ensure you have the following installed:
 First, fork the repository (if needed), then clone it to your local machine:
 
 ```sh
-git clone https://github.com/your-username/repository-name.git
-cd repository-name
+git clone https://github.com/VallabhSangvikar/Bikeverse.git
+cd Bikeverse
 cd backend
 npm install
 npm run dev
