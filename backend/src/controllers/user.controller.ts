@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { UploadedFile } from 'express-fileupload';
 import { BaseController } from './base/base.controller';
 import { UserService } from '../services/user.service';
 import { IUser } from '../models/user.model';
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
+import { uploadCloudinary } from '../uploadCloudinary';
 
 // Type-safe JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -107,5 +109,31 @@ export class UserController extends BaseController<IUser> {
             next(error);
         }
     }
-    
+    async setupProfile(req: Request, res: Response, next: NextFunction) {
+        if (req.files) {
+            if (!req.files || Object.keys(req.files).length === 0) {
+                res.status(400).json({ message: 'No files uploaded' });
+                return;
+            }
+            
+            const files = req.files as { [key: string]: UploadedFile };
+            console.log("files"+req.files);
+                const idProof = files['idProof'] as UploadedFile;
+                const businessLicense = files['businessLicense'] as UploadedFile;
+
+                const url1 = await uploadCloudinary(idProof);
+                const url2 = await uploadCloudinary(businessLicense);
+                
+                req.body = {
+                    ...req.body,
+                    documents: {
+                        idProof: url1,
+                        businessLicense: url2,
+                        verificationStatus: 'pending'
+                    }
+                };
+            
+            return this.update(req, res, next);
+        }
+    }
 }

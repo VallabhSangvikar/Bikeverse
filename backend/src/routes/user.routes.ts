@@ -11,6 +11,7 @@ router.post('/login', userController.login.bind(userController));
 router.get('/profile', authMiddleware, userController.getProfile.bind(userController));
 router.put('/profile', authMiddleware, validateUser, userController.updateProfile.bind(userController));
 router.get('/users', authMiddleware, roleCheck(['admin']), userController.getAll.bind(userController));
+router.post('/setupProfile', userController.setupProfile.bind(userController));
 
 // Admin routes for verification
 router.get(
