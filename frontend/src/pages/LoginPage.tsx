@@ -11,7 +11,7 @@ const LoginPage = () => {
   const navigate = useNavigate()
   const { toast } = useToast()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
     try {
       await login(email, password)
