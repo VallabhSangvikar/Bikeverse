@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { useCart } from "../context/CartContext"
-import { Button } from "./ui/button"
-import { ShoppingCart } from "lucide-react"
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import { Button } from "./ui/button";
+import { ShoppingCart } from "lucide-react";
 
 const Header = () => {
-  const { user, logout } = useAuth()
-  const { items } = useCart()
+  const { user, logout } = useAuth();
+  const { items } = useCart();
 
   return (
     <header className="bg-white shadow-md">
@@ -21,10 +21,18 @@ const Header = () => {
                 Products
               </Link>
             </li>
+            <li>
+              <Link to="/posts" className="hover:text-primary">
+                Posts
+              </Link>
+            </li>
             {user ? (
               <>
                 <li>
-                  <Link to={user.role === "seller" ? "/seller" : "/dashboard"} className="hover:text-primary">
+                  <Link
+                    to={user.role === "seller" ? "/seller" : "/dashboard"}
+                    className="hover:text-primary"
+                  >
                     Dashboard
                   </Link>
                 </li>
@@ -62,8 +70,7 @@ const Header = () => {
         </nav>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
-
+export default Header;
