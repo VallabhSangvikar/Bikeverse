@@ -15,7 +15,6 @@ export class BikeController extends BaseController<IBike> {
 
     async search(req: Request, res: Response, next: NextFunction) {
         try {
-            console.log("Hello from Bikecontroller");
             const filters = {
                 category: req.query.category as string,
                 city: req.query.city as string,

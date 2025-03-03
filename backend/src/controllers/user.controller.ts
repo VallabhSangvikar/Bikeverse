@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { UploadedFile } from 'express-fileupload';
 import { BaseController } from './base/base.controller';
 import { UserService } from '../services/user.service';
 import { IUser } from '../models/user.model';
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
+import { uploadCloudinary } from '../uploadCloudinary';
 
 // Type-safe JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -68,21 +70,6 @@ export class UserController extends BaseController<IUser> {
         }
     }
 
-    async uploadDocuments(req: Request, res: Response, next: NextFunction) {
-        try {
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-            const documentUrls = {
-                idProof: files.idProof ? files.idProof[0].path : undefined,
-                businessLicense: files.businessLicense ? files.businessLicense[0].path : undefined
-            };
-
-            const user = await this.userService.updateDocuments(req.user.id, documentUrls);
-            res.json(user);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     async verifyUser(req: Request, res: Response, next: NextFunction) {
         try {
             const { userId, status } = req.body;
@@ -121,5 +108,41 @@ export class UserController extends BaseController<IUser> {
         } catch (error) {
             next(error);
         }
+    }
+    async setupProfile(req: Request, res: Response, next: NextFunction) {
+        req.body.address = {
+            street: req.body.street,
+            city: req.body.city,
+            state: req.body.state,
+            pincode: req.body.pincode,
+            coordinates: {
+                latitude: req.body.latitude,
+                longitude: req.body.longitude
+            }
+        };
+        if (req.files) {
+            if (!req.files || Object.keys(req.files).length === 0) {
+                res.status(400).json({ message: 'No files uploaded' });
+                return;
+            }
+            const files = req.files as { [key: string]: UploadedFile }
+
+                const idProof = files['idProof'] as UploadedFile;
+                const businessLicense = files['businessLicense'] as UploadedFile;
+                const url1 = await uploadCloudinary(idProof.data);
+                const url2 = await uploadCloudinary(businessLicense.data);
+                
+                req.body = {
+                    ...req.body,
+                    documents: {
+                        idProof: url1,
+                        businessLicense: url2,
+                        verificationStatus: 'pending'
+                    }
+                };
+        }
+        req.body.setup = true;
+        const result=await this.update(req, res, next);
+        return result;
     }
 }

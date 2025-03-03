@@ -49,7 +49,7 @@ const BikeSchema: Schema = new Schema({
     year: { type: Number, required: true },
     category: { 
         type: String, 
-        enum: ['sports', 'cruiser', 'vintage', 'scooter', 'commuter', 'adventure'],
+        enum: ['sports', 'cruiser', 'vintage', 'scooter', 'commuter', 'adventure', 'custom'],
         required: true 
     },
     description: { type: String, required: true },

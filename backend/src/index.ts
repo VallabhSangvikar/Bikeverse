@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { errorMiddleware } from './middleware/error.middleware';
+import fileUpload from 'express-fileupload';
 
 dotenv.config();
 
@@ -13,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
-
+app.use(fileUpload());
 // Routes
 app.get('/', (req, res) => {
     res.send('BikeVerse API');

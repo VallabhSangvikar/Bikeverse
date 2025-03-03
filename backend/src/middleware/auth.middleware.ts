@@ -20,7 +20,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET!);
         req.user = decoded;
-        
+        if(req.user.setup==false){
+            throw new HttpException(401, 'User not setup');
+        }
         next();
     } catch (error) {
         next(new HttpException(401, 'Invalid authentication token'));

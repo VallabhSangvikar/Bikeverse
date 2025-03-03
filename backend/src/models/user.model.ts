@@ -6,6 +6,7 @@ export interface IUser extends Document {
     role: 'buyer' | 'seller' | 'admin';
     name: string;
     phone?: string;
+    setup: boolean ;
     // Seller specific fields
     businessType?: 'showroom' | 'individual';
     address?: {
@@ -34,12 +35,10 @@ const UserSchema: Schema = new Schema({
     role: { type: String, enum: ['buyer', 'seller', 'admin'], default: 'buyer' },
     name: { type: String, required: true },
     phone: { type: String},
+    setup: { type: Boolean, default: false },
     businessType: { 
         type: String, 
         enum: ['showroom', 'individual'],
-        required: function(this: IUser) { 
-            return this.role === 'seller';
-        }
     },
     address: {
         street: String,
