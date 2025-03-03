@@ -115,14 +115,12 @@ export class UserController extends BaseController<IUser> {
                 res.status(400).json({ message: 'No files uploaded' });
                 return;
             }
-            
-            const files = req.files as { [key: string]: UploadedFile };
-            console.log("files"+req.files);
+            const files = req.files as { [key: string]: UploadedFile }
+
                 const idProof = files['idProof'] as UploadedFile;
                 const businessLicense = files['businessLicense'] as UploadedFile;
-
-                const url1 = await uploadCloudinary(idProof);
-                const url2 = await uploadCloudinary(businessLicense);
+                const url1 = await uploadCloudinary(idProof.data);
+                const url2 = await uploadCloudinary(businessLicense.data);
                 
                 req.body = {
                     ...req.body,

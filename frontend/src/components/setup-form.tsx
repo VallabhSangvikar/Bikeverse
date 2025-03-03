@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Loader2 } from "lucide-react";
 
 export function SetupForm() {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -67,23 +67,16 @@ export function SetupForm() {
       }
       console.log("formData"+JSON.stringify(formDataToSend));
       // Call API
-      try {
-            const response = await fetch(`${API_URL}/auth/setupProfile`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${user?.token}`,
-                },
-                body: formDataToSend,
-            });
-            if (!response.ok) {
-                throw new Error("Failed to setup profile");
-            }
-            const data = await response.json();
-            
-      }catch (error) {
-            console.log(error);
-        }
-      
+      const response = await fetch(`${API_URL}/auth/setupProfile/${user?._id}`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${user?.token}`,
+        },
+        body: formDataToSend,
+    });
+    if (!response.ok) {
+        throw new Error("Failed to setup profile");
+    }
       toast({
         title: "Setup Complete",
         description: "Your profile has been set up successfully!",
