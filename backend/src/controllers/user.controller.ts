@@ -110,6 +110,16 @@ export class UserController extends BaseController<IUser> {
         }
     }
     async setupProfile(req: Request, res: Response, next: NextFunction) {
+        req.body.address = {
+            street: req.body.street,
+            city: req.body.city,
+            state: req.body.state,
+            pincode: req.body.pincode,
+            coordinates: {
+                latitude: req.body.latitude,
+                longitude: req.body.longitude
+            }
+        };
         if (req.files) {
             if (!req.files || Object.keys(req.files).length === 0) {
                 res.status(400).json({ message: 'No files uploaded' });
@@ -130,8 +140,9 @@ export class UserController extends BaseController<IUser> {
                         verificationStatus: 'pending'
                     }
                 };
-            
-            return this.update(req, res, next);
         }
+        req.body.setup = true;
+        const result=await this.update(req, res, next);
+        return result;
     }
 }

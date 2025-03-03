@@ -23,6 +23,10 @@ export function SetupForm() {
       city: "",
       state: "",
       pincode: "",
+      coordinates: {
+        latitude: null as number | null,
+        longitude: null as number | null
+      }
     },
     businessType: "showroom" as "showroom" | "individual",
     documents: {
@@ -44,6 +48,42 @@ export function SetupForm() {
     }
   };
 
+  const handleGetCoordinates = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFormData({
+            ...formData,
+            address: {
+              ...formData.address,
+              coordinates: {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              }
+            }
+          });
+          toast({
+            title: "Location Retrieved",
+            description: "Your coordinates have been added successfully.",
+          });
+        },
+        (error) => {
+          toast({
+            title: "Location Error",
+            description: "Failed to get your location. Please enter coordinates manually.",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Geolocation Not Supported",
+        description: "Your browser doesn't support geolocation.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -53,8 +93,14 @@ export function SetupForm() {
       
       // Append basic info
       formDataToSend.append("phone", formData.phone);
-      formDataToSend.append("address", JSON.stringify(formData.address));
-      
+      // formDataToSend.append("address", JSON.stringify(formData.address));
+      formDataToSend.append("state", formData.address.state);
+      formDataToSend.append("city", formData.address.city);
+      formDataToSend.append("street", formData.address.street);
+      formDataToSend.append("pincode", formData.address.pincode);
+      formDataToSend.append("latitude", formData.address.coordinates.latitude?.toString() || "");
+      formDataToSend.append("longitude", formData.address.coordinates.longitude?.toString() || "");
+
       // Add seller-specific data
       if (user?.role === "seller") {
         formDataToSend.append("businessType", formData.businessType);
@@ -65,7 +111,6 @@ export function SetupForm() {
           formDataToSend.append("businessLicense", formData.documents.businessLicense);
         }
       }
-      console.log("formData"+JSON.stringify(formDataToSend));
       // Call API
       const response = await fetch(`${API_URL}/auth/setupProfile/${user?._id}`, {
         method: "POST",
@@ -81,7 +126,8 @@ export function SetupForm() {
         title: "Setup Complete",
         description: "Your profile has been set up successfully!",
       });
-
+      user.setup = true;
+      localStorage.setItem("user", JSON.stringify(user));
       // Redirect based on role
       navigate(user?.role === "seller" ? "/seller" : "/dashboard");
     } catch (error) {
@@ -109,6 +155,7 @@ export function SetupForm() {
               <Input
                 id="phone"
                 type="tel"
+                placeholder="+91 9876543210"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required
@@ -118,7 +165,7 @@ export function SetupForm() {
             <div className="space-y-2">
               <Label>Address</Label>
               <Input
-                placeholder="Street Address"
+                placeholder="Street Address (e.g., 123 Main Street, Apartment 4B)"
                 value={formData.address.street}
                 onChange={(e) =>
                   setFormData({
@@ -130,7 +177,7 @@ export function SetupForm() {
               />
               <div className="grid grid-cols-2 gap-2">
                 <Input
-                  placeholder="City"
+                  placeholder="City (e.g., Mumbai)"
                   value={formData.address.city}
                   onChange={(e) =>
                     setFormData({
@@ -141,7 +188,7 @@ export function SetupForm() {
                   required
                 />
                 <Input
-                  placeholder="State"
+                  placeholder="State (e.g., Maharashtra)"
                   value={formData.address.state}
                   onChange={(e) =>
                     setFormData({
@@ -153,7 +200,7 @@ export function SetupForm() {
                 />
               </div>
               <Input
-                placeholder="Postal Code"
+                placeholder="Postal Code (e.g., 400001)"
                 value={formData.address.pincode}
                 onChange={(e) =>
                   setFormData({
@@ -163,6 +210,58 @@ export function SetupForm() {
                 }
                 required
               />
+              
+              <div className="mt-4 space-y-2">
+                <Label>Location Coordinates</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    placeholder="Latitude (e.g., 19.0760)"
+                    type="number"
+                    step="any"
+                    value={formData.address.coordinates.latitude || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: { 
+                          ...formData.address, 
+                          coordinates: {
+                            ...formData.address.coordinates,
+                            latitude: parseFloat(e.target.value)
+                          } 
+                        },
+                      })
+                    }
+                    required
+                  />
+                  <Input
+                    placeholder="Longitude (e.g., 72.8777)"
+                    type="number"
+                    step="any"
+                    value={formData.address.coordinates.longitude || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: { 
+                          ...formData.address, 
+                          coordinates: {
+                            ...formData.address.coordinates,
+                            longitude: parseFloat(e.target.value)
+                          } 
+                        },
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full mt-2"
+                  onClick={handleGetCoordinates}
+                >
+                  Get Current Location
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -176,6 +275,7 @@ export function SetupForm() {
                   onValueChange={(value: "showroom" | "individual") =>
                     setFormData({ ...formData, businessType: value })
                   }
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select business type" />
@@ -192,9 +292,13 @@ export function SetupForm() {
                 <Input
                   id="idProof"
                   type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) => handleFileChange(e, 'idProof')}
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload Aadhar Card, PAN Card, or other valid ID (PDF, JPG, PNG)
+                </p>
               </div>
 
               <div>
@@ -202,9 +306,13 @@ export function SetupForm() {
                 <Input
                   id="businessLicense"
                   type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) => handleFileChange(e, 'businessLicense')}
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload GST Certificate, Trade License, or other business documents (PDF, JPG, PNG)
+                </p>
               </div>
             </div>
           )}

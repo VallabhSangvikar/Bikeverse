@@ -12,7 +12,6 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage"; 
 import SetupPage from "./pages/SetupPage";
 import { Toaster } from "./components/ui/toaster";
-import { BookingProvider } from "./context/BookingContext";
 import { useAuth } from "./context/AuthContext";
 import ServicesPage from "./pages/ServicesPage";  
 
