@@ -17,10 +17,10 @@ export class BikeService extends BaseService<IBike> {
     }) {
         const query: any = { status: 'available' };
 
-        if (filters.category) query.category = filters.category;
+        // if (filters.category) query.category = filters.category;
         if (filters.city) query['location.city'] = filters.city;
         if (filters.state) query['location.state'] = filters.state;
-        if (filters.purpose) query.purpose = filters.purpose;
+        // if (filters.purpose) query.purpose = filters.purpose;
         if (filters.condition) query['specifications.condition'] = filters.condition;
         
         if (filters.priceRange) {
@@ -31,10 +31,8 @@ export class BikeService extends BaseService<IBike> {
                 query['pricing.salePrice'] = priceQuery;
             }
         }
-
-        return Bike.find(query)
-            .populate('seller', 'name businessType rating')
-            .sort('-createdAt');
+        const bikes = await Bike.find(query);//.populate('owner');
+        return bikes;
     }
 
     async updateBikeStatus(bikeId: string, status: IBike['status']) {

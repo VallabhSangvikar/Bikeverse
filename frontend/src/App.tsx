@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
-import ProductListingPage from "./pages/ProductListingPage";
-import ProductDetailsPage from "./pages/ProductDetailsPage";
 import BookingForm from "./pages/BookingForm";
 import BookingPage from "./pages/BookPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
@@ -13,7 +11,7 @@ import SignupPage from "./pages/SignupPage";
 import SetupPage from "./pages/SetupPage";
 import { Toaster } from "./components/ui/toaster";
 import { useAuth } from "./context/AuthContext";
-import ServicesPage from "./pages/ServicesPage";  
+import BikeDetailsPage from "./pages/BikeDetailsPage";
 
 // Protected route component
 const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
@@ -58,8 +56,8 @@ function App() {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/products" element={<ProductListingPage />} />
-          <Route path="/product/:id" element={<ProductDetailsPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/bikes/:id" element={<BikeDetailsPage />} />
           
           <Route path="/book/:id" element={
             <ProtectedRoute>
@@ -73,7 +71,6 @@ function App() {
             </ProtectedRoute>
           } />
           
-          <Route path="/services" element={<ServicesPage />} />
           
           <Route path="/seller" element={
             <ProtectedRoute>
