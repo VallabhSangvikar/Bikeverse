@@ -22,8 +22,6 @@ const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
   if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
-  
-  // If user hasn't completed setup, redirect to setup
   if (!user.setup) {
     return <Navigate to="/setup" replace />;
   }
@@ -40,8 +38,6 @@ const SetupRoute = ({ children, redirectTo = "/login" }) => {
   if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
-  
-  // If user has already completed setup, redirect to appropriate dashboard
   if (user.setup) {
     return <Navigate to={user.role === "seller" ? "/seller" : "/dashboard"} replace />;
   }

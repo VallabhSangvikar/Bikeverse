@@ -16,13 +16,14 @@ app.use(helmet());
 app.use(express.json());
 app.use(fileUpload());
 // Routes
-app.get("/", (req, res) => {
-  res.send("BikeVerse API");
+app.get('/', (req, res) => {
+    res.send('BikeVerse API');
 });
-app.use(errorMiddleware);
+import routes from './routes';
+app.use('/api', routes);
 
-import routes from "./routes";
-app.use("/api", routes);
+// Error handling
+app.use(errorMiddleware);
 
 // Database connection
 const mongoUri = process.env.MONGODB_URI;
