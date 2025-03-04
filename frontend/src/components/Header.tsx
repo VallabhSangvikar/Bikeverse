@@ -21,6 +21,11 @@ const Header = () => {
                 Products
               </Link>
             </li>
+            <li>
+              <Link to="/posts" className="hover:text-primary">
+                Posts
+              </Link>
+            </li>
             {user ? (
               <>
                 <li>

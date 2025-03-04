@@ -12,7 +12,7 @@ import SetupPage from "./pages/SetupPage";
 import { Toaster } from "./components/ui/toaster";
 import { useAuth } from "./context/AuthContext";
 import BikeDetailsPage from "./pages/BikeDetailsPage";
-
+import PostsPage from "./pages/PostsPage";
 // Protected route component
 const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
   const { user, loading } = useAuth();
@@ -22,8 +22,6 @@ const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
   if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
-  
-  // If user hasn't completed setup, redirect to setup
   if (!user.setup) {
     return <Navigate to="/setup" replace />;
   }
@@ -40,8 +38,6 @@ const SetupRoute = ({ children, redirectTo = "/login" }) => {
   if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
-  
-  // If user has already completed setup, redirect to appropriate dashboard
   if (user.setup) {
     return <Navigate to={user.role === "seller" ? "/seller" : "/dashboard"} replace />;
   }
@@ -86,6 +82,7 @@ function App() {
           
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/posts" element={<PostsPage />} /> {/* ✅ New Route */}
           
           <Route path="/setup" element={
             <SetupRoute>
