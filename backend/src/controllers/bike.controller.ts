@@ -16,31 +16,6 @@ export class BikeController extends BaseController<IBike> {
     // Get all bikes
     async getAll(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
         try {
-            const bikes = await this.bikeService.getAllBikes();
-            return res.json(bikes);
-        } catch (error) {
-            next(error);
-            return undefined;
-        }
-    }
-
-    // Get bike by ID
-    async getById(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
-        try {
-            const { id } = req.params;
-            const bike = await this.bikeService.getBikeById(id);
-            if (!bike) throw new HttpException(404, "Bike not found");
-            return res.json(bike);
-        } catch (error) {
-            next(error);
-            return undefined;
-        }
-    }
-
-    // Search bikes with filters
-    async search(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
-        try {
-            console.log("Hello from BikeController - Search");
             const filters = {
                 category: req.query.category as string,
                 city: req.query.city as string,

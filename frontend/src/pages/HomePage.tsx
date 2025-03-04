@@ -1,81 +1,114 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Carousel } from "../components/ui/carousel";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardFooter } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { fetchBikes, Bike } from "../services/bike.service";
+import { Input } from "../components/ui/input";
+import { Bike, searchBikes } from "../services/bikeService";
 
 const HomePage = () => {
   const [bikes, setBikes] = useState<Bike[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    category: "all",
+    purpose: "all",
+    city: "",
+  });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const loadBikes = async () => {
-      try {
-        const bikesData = await fetchBikes();
-        setBikes(bikesData);
-      } catch (error) {
-        console.error("Failed to load bikes", error);
-      }
-    };
     loadBikes();
-  }, []);
+  }, [filters]);
+
+  const loadBikes = async () => {
+    try {
+      const data = await searchBikes(filters);
+      setBikes(data);
+    } catch (error) {
+      console.error("Error loading bikes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Hero Section */}
-      <section className="mb-12 text-left">
-        <h1 className="text-4xl font-bold mb-4">Welcome to BikeShop</h1>
-        <p className="text-xl mb-6">Discover the best motorcycles, scooters, and electric bikes.</p>
-        <Link to="/products">
-          <Button size="lg">Shop Now</Button>
-        </Link>
+      <section className="mb-8">
+        <h1 className="text-4xl font-bold mb-4">Find Your Perfect Ride</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Input
+            placeholder="Search by city..."
+            value={filters.city}
+            onChange={(e) =>
+              setFilters({ ...filters, city: e.target.value })
+            }
+          />
+          <select
+            className="border p-2 rounded"
+            value={filters.category}
+            onChange={(e) =>
+              setFilters({ ...filters, category: e.target.value })
+            }
+          >
+            <option value="all">All Categories</option>
+            <option value="sports">Sports</option>
+            <option value="cruiser">Cruiser</option>
+            <option value="vintage">Vintage</option>
+            <option value="scooter">Scooter</option>
+            <option value="commuter">Commuter</option>
+            <option value="adventure">Adventure</option>
+          </select>
+          <select
+            className="border p-2 rounded"
+            value={filters.purpose}
+            onChange={(e) =>
+              setFilters({ ...filters, purpose: e.target.value })
+            }
+          >
+            <option value="all">All Purposes</option>
+            <option value="sale">For Sale</option>
+            <option value="rent">For Rent</option>
+          </select>
+        </div>
       </section>
 
-      {/* Featured Bikes */}
-      <section className="mb-12">
-        <h2 className="text-3xl font-semibold mb-6">Featured Bikes</h2>
-        <Carousel className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {bikes.length > 0 ? (
-            bikes.map((bike) => (
-              <div key={bike._id} className="p-4 shadow-md rounded-lg bg-white">
+      {loading ? (
+        <div className="text-center">Loading...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {bikes.map((bike) => (
+            <Card key={bike._id} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-4">
                 <img
-                  src={bike.images?.[0] || "https://via.placeholder.com/300"}
+                  src={bike.images[0] || "/placeholder-bike.png"}
                   alt={bike.title}
-                  className="w-full h-64 object-cover mb-4 rounded-lg"
+                  className="w-full h-48 object-cover rounded-md mb-4"
                 />
-                <h3 className="text-lg font-semibold mb-2">{bike.title}</h3>
+                <h2 className="text-xl font-semibold mb-2">{bike.title}</h2>
                 <p className="text-gray-600 mb-2">
-                  ${bike.pricing?.salePrice || bike.pricing?.rentalPrice?.daily || "N/A"}
+                  {bike.brand} {bike.bikeModel} ({bike.year})
                 </p>
-                <Link to={`/bike/${bike._id}`}>
-                  <Button variant="outline">View Details</Button>
-                </Link>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No bikes available at the moment.</p>
-          )}
-        </Carousel>
-      </section>
-
-      {/* Selling & Categories Section */}
-      <section className="grid md:grid-cols-2 gap-8">
-        <div className="bg-primary text-white p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Sell Your Bike</h2>
-          <p className="mb-4">
-            Got a bike you want to sell? List it on our platform and reach thousands of potential buyers.
-          </p>
-          <Link to="/sell">
-            <Button variant="secondary">Start Selling</Button>
-          </Link>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-lg font-bold">
+                    {bike.pricing.salePrice
+                      ? `₹${bike.pricing.salePrice}`
+                      : `₹${bike.pricing.rentalPrice?.daily}/day`}
+                  </span>
+                  <span className="text-sm text-gray-500">{bike.location.city}</span>
+                </div>
+              </CardContent>
+              <CardFooter className="p-4 pt-0">
+                <Button
+                  className="w-full"
+                  onClick={() => navigate(`/bikes/${bike._id}`)}
+                >
+                  View Details
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
-        <div className="bg-secondary p-8 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Explore Categories</h2>
-          <p className="mb-4">Browse through our wide range of motorcycles, scooters, and electric bikes.</p>
-          <Link to="/products">
-            <Button>View Categories</Button>
-          </Link>
-        </div>
-      </section>
+      )}
     </div>
   );
 };

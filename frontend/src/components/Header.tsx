@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useBooking } from "../context/BookingContext"; // Use correct context
 import { Button } from "./ui/button";
-import { ShoppingCart } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const { items } = useCart();
+  const { bookings } = useBooking(); // Get bookings from context
 
   return (
     <header className="bg-white shadow-md">
@@ -56,14 +56,11 @@ const Header = () => {
                 </li>
               </>
             )}
+            {/* Booking system instead of cart */}
             <li>
-              <Link to="/cart" className="relative">
-                <ShoppingCart className="h-6 w-6" />
-                {items.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                    {items.length}
-                  </span>
-                )}
+              <Link to="/bookings" className="relative flex items-center space-x-2">
+                <Calendar className="w-6 h-6 text-primary" />
+                <span>Bookings ({bookings.length})</span>
               </Link>
             </li>
           </ul>

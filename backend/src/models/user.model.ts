@@ -5,7 +5,8 @@ export interface IUser extends Document {
     password: string;
     role: 'buyer' | 'seller' | 'admin';
     name: string;
-    phone: string;
+    phone?: string;
+    setup: boolean ;
     // Seller specific fields
     businessType?: 'showroom' | 'individual';
     address?: {
@@ -33,13 +34,11 @@ const UserSchema: Schema = new Schema({
     password: { type: String, required: true },
     role: { type: String, enum: ['buyer', 'seller', 'admin'], default: 'buyer' },
     name: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: { type: String},
+    setup: { type: Boolean, default: false },
     businessType: { 
         type: String, 
         enum: ['showroom', 'individual'],
-        required: function(this: IUser) { 
-            return this.role === 'seller';
-        }
     },
     address: {
         street: String,

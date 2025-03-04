@@ -42,20 +42,23 @@ export interface IBike extends Document {
   updatedAt?: Date;
 }
 
-const BikeSchema: Schema = new Schema<IBike>(
-  {
-    title: { type: String, required: true, trim: true },
-    brand: { type: String, required: true, trim: true },
-    bikeModel: { type: String, required: true, trim: true },
-    year: { type: Number, required: true, min: 1900 },
-    category: {
-      type: String,
-      enum: ["sports", "cruiser", "vintage", "scooter", "commuter", "adventure", "street", "scrambler", "naked"],
-      required: true,
+const BikeSchema: Schema = new Schema({
+    title: { type: String, required: true },
+    brand: { type: String, required: true },
+    bikeModel: { type: String, required: true },
+    year: { type: Number, required: true },
+    category: { 
+        type: String, 
+        enum: ['sports', 'cruiser', 'vintage', 'scooter', 'commuter', 'adventure', 'custom'],
+        required: true 
     },
-    description: { type: String, required: true, trim: true },
-    images: [{ type: String, required: true }],
-    purpose: { type: String, enum: ["sale", "rent", "both"], required: true },
+    description: { type: String, required: true },
+    images: [{ type: String }],
+    purpose: { 
+        type: String, 
+        enum: ['sale', 'rent', 'both'],
+        required: true 
+    },
     pricing: {
       salePrice: { type: Number, min: 0 },
       rentalPrice: {
