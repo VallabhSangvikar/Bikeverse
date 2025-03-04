@@ -12,7 +12,7 @@ import SetupPage from "./pages/SetupPage";
 import { Toaster } from "./components/ui/toaster";
 import { useAuth } from "./context/AuthContext";
 import BikeDetailsPage from "./pages/BikeDetailsPage";
-
+import PostsPage from "./pages/PostsPage";
 // Protected route component
 const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
   const { user, loading } = useAuth();
