@@ -9,8 +9,8 @@ const HomePage = () => {
   const [bikes, setBikes] = useState<Bike[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    category: "all",
-    purpose: "all",
+    category: "",
+    purpose: "",
     city: "",
   });
 
@@ -50,7 +50,7 @@ const HomePage = () => {
               setFilters({ ...filters, category: e.target.value })
             }
           >
-            <option value="all">All Categories</option>
+            <option value="">All Categories</option>
             <option value="sports">Sports</option>
             <option value="cruiser">Cruiser</option>
             <option value="vintage">Vintage</option>
@@ -65,7 +65,7 @@ const HomePage = () => {
               setFilters({ ...filters, purpose: e.target.value })
             }
           >
-            <option value="all">All Purposes</option>
+            <option value="">All Purposes</option>
             <option value="sale">For Sale</option>
             <option value="rent">For Rent</option>
           </select>
