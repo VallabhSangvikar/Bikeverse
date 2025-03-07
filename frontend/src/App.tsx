@@ -3,9 +3,8 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import BookingForm from "./pages/BookingForm";
-import BookingPage from "./pages/BookPage";
+import BookPage from "./pages/BookPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
-import BuyerDashboardPage from "./pages/BuyerDashboardPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage"; 
 import SetupPage from "./pages/SetupPage";
@@ -62,9 +61,9 @@ function App() {
           } />
           
           <Route path="/bookings" element={
-            <ProtectedRoute>
-              <BookingPage />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+              <BookPage />
+            // </ProtectedRoute>
           } />
           
           
@@ -74,11 +73,6 @@ function App() {
             </ProtectedRoute>
           } />
           
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <BuyerDashboardPage />
-            </ProtectedRoute>
-          } />
           
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
