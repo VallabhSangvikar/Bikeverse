@@ -92,6 +92,23 @@ const BikeDetailsPage = () => {
                 )}
               </div>
             )}
+            {bike.purpose=="both" && (
+              <div className="space-y-2">
+                <p className="text-2xl font-bold">Purchase : ₹{bike.pricing.salePrice}</p>
+                <div className="space-y-2">
+                  Rentals :
+                  {bike.pricing.rentalPrice?.daily && (
+                    <p>Daily: ₹{bike.pricing.rentalPrice.daily}</p>
+                  )}
+                  {bike.pricing.rentalPrice?.weekly && (
+                    <p>Weekly: ₹{bike.pricing.rentalPrice.weekly}</p>
+                  )}
+                  {bike.pricing.rentalPrice?.monthly && (
+                    <p>Monthly: ₹{bike.pricing.rentalPrice.monthly}</p>
+                  )}
+                </div>
+              </div>
+            )}
           </Card>
 
           <div className="mb-6">
@@ -110,7 +127,7 @@ const BikeDetailsPage = () => {
               className="flex-1"
               onClick={() => navigate(`/book/${bike._id}`)}
             >
-              {bike.purpose === 'sale' ? 'Buy Now' : 'Rent Now'}
+              {bike.purpose === 'sale' ? 'Buy Now' : bike.purpose === 'rent' ? 'Rent Now' : 'Buy/Rent Now'}
             </Button>
             <Button
               variant="outline"

@@ -6,6 +6,14 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useToast } from "../hooks/use-toast";
 import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import { Textarea } from "../components/ui/textarea";
 
 interface Seller {
   name: string;
@@ -60,6 +68,9 @@ const BookPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedBooking, setExpandedBooking] = useState<string | null>(null);
+  const [cancelBookingId, setCancelBookingId] = useState<string | null>(null);
+  const [cancelMessage, setCancelMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -73,7 +84,6 @@ const BookPage = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      console.log(response.data);
       setBookings(response.data);
     } catch (error) {
       toast({
@@ -83,6 +93,45 @@ const BookPage = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (!cancelBookingId) return;
+    setIsSubmitting(true);
+    try {
+      await axios.patch(`http://localhost:3000/api/bookings/${cancelBookingId}/status`, 
+        { message: cancelMessage, status: 'cancelled' },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
+      // Update the booking status locally
+      setBookings(bookings.map(booking => 
+        booking._id === cancelBookingId 
+          ? { ...booking, status: 'cancelled' } 
+          : booking
+      ));
+      
+      toast({
+        title: "Booking Cancelled",
+        description: "Your booking has been cancelled successfully.",
+      });
+      
+      setCancelBookingId(null);
+      setCancelMessage('');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to cancel booking. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -200,15 +249,70 @@ const BookPage = () => {
                             <p className="text-lg font-semibold text-green-600">
                               ₹{booking.price.toLocaleString()}
                             </p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleBookingDetails(booking._id)}
-                            >
-                              {expandedBooking === booking._id ? 
-                                <ChevronUp className="h-5 w-5" /> : 
-                                <ChevronDown className="h-5 w-5" />}
-                            </Button>
+                            <div className="flex gap-2">
+                              {(booking.status === 'pending' || booking.status === 'accepted') && (
+                                <Dialog open={cancelBookingId === booking._id} onOpenChange={(open) => {
+                                  if (!open) {
+                                    setCancelBookingId(null);
+                                    setCancelMessage('');
+                                  }
+                                }}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => setCancelBookingId(booking._id)}
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Cancel Booking
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Cancel Booking</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                      <p className="text-sm text-gray-600">
+                                        Please provide a reason for cancellation:
+                                      </p>
+                                      <Textarea
+                                        value={cancelMessage}
+                                        onChange={(e) => setCancelMessage(e.target.value)}
+                                        placeholder="Enter your reason for cancellation..."
+                                        className="min-h-[100px]"
+                                      />
+                                      <div className="flex justify-end gap-2">
+                                        <Button
+                                          variant="outline"
+                                          onClick={() => {
+                                            setCancelBookingId(null);
+                                            setCancelMessage('');
+                                          }}
+                                        >
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          variant="destructive"
+                                          onClick={handleCancelBooking}
+                                          disabled={!cancelMessage || isSubmitting}
+                                        >
+                                          {isSubmitting ? "Cancelling..." : "Confirm Cancel"}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleBookingDetails(booking._id)}
+                              >
+                                {expandedBooking === booking._id ? 
+                                  <ChevronUp className="h-5 w-5" /> : 
+                                  <ChevronDown className="h-5 w-5" />}
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -299,7 +403,7 @@ const BookPage = () => {
         </div>
       )}
       
-      <Button className="mt-8 w-full md:w-auto" onClick={() => navigate("/bikes")}>
+      <Button className="mt-8 w-full md:w-auto" onClick={() => navigate("/")}>
         Book a Bike
       </Button>
     </div>

@@ -42,7 +42,7 @@ const BookingForm = () => {
         bike: id!,
         seller: bike.seller, // Add seller ID from bike data
         type: bike.purpose === 'sale' ? 'purchase' : 'rental',
-        message: formData.message,
+        message: [formData.message],
         price: bike.purpose === 'sale' ? bike.pricing.salePrice : bike.pricing.rentalPrice.daily,
         ...(bike.purpose === 'rent' && formData.startDate && formData.endDate && {
           rentalDuration: {
@@ -72,9 +72,24 @@ const BookingForm = () => {
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8">
       <Card className="p-6">
-        <h1 className="text-2xl font-bold mb-6">
-          {bike.purpose === 'sale' ? 'Purchase' : 'Rent'} Request
-        </h1>
+        {bike.purpose === 'both' ? (
+          <div className="mb-6">
+            <label className="block font-medium mb-2">Request Type</label>
+            <select 
+              className="border rounded p-2 w-full"
+              onChange={(e) => setBike({ ...bike, purpose: e.target.value })}
+              required
+            >
+              <option value="">Select request type</option>
+              <option value="sale">Purchase</option>
+              <option value="rent">Rent</option>
+            </select>
+          </div>
+        ) : (
+          <h1 className="text-2xl font-bold mb-6">
+            {bike.purpose === 'sale' ? 'Purchase' : 'Rent'} Request
+          </h1>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
