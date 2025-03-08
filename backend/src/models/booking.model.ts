@@ -10,7 +10,7 @@ export interface IBooking extends Document {
         startDate: Date;
         endDate: Date;
     };
-    message?: string;
+    message?: [string];
     price: number;
     createdAt: Date;
     updatedAt: Date;
@@ -30,7 +30,7 @@ const BookingSchema: Schema = new Schema({
         startDate: Date,
         endDate: Date
     },
-    message: String,
+    message: [String],
     price: { type: Number, required: true }
 }, {
     timestamps: true

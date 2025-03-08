@@ -1,91 +1,153 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { Textarea } from "../components/ui/textarea";
+import { useToast } from "../hooks/use-toast"
+import { getBikeById } from "../services/bikeService";
 import axios from "axios";
+import { useBooking } from "../context/BookingContext";
 
-// Define the type for booking details
-interface BookingDetails {
-  name: string;
-  date: string;
-  duration: number;
+interface BookingFormData {
+  message: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 const BookingForm = () => {
-  const { id } = useParams<{ id: string }>(); // Get bike ID from URL
-  const [bookingDetails, setBookingDetails] = useState<BookingDetails>({
-    name: "",
-    date: "",
-    duration: 1,
+  const { toast } = useToast();
+  const { addBooking } = useBooking();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [bike, setBike] = useState<any>(null);
+  const [formData, setFormData] = useState<BookingFormData>({
+    message: "",
   });
+  useEffect(() => {
+    const loadBike = async () => {
+      if (id) {
+        const bikeData = await getBikeById(id);
+        setBike(bikeData);
+      }
+    };
+    loadBike();
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/bookings", {
-        bikeId: id,
-        ...bookingDetails,
+      if (!bike) return;
+
+      const bookingData = {
+        bike: id!,
+        seller: bike.seller, // Add seller ID from bike data
+        type: bike.purpose === 'sale' ? 'purchase' : 'rental',
+        message: [formData.message],
+        price: bike.purpose === 'sale' ? bike.pricing.salePrice : bike.pricing.rentalPrice.daily,
+        ...(bike.purpose === 'rent' && formData.startDate && formData.endDate && {
+          rentalDuration: {
+            startDate: formData.startDate,
+            endDate: formData.endDate,
+          },
+        }),
+      };
+      addBooking(bookingData);
+      toast({
+        title: "Success",
+        description: "Booking request sent successfully!",
       });
-      alert("Bike booked successfully!");
+      navigate(-1);
     } catch (error) {
-      console.error("Error booking bike:", error);
-      alert("Failed to book the bike. Please try again later.");
+      console.error("Error creating booking:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create booking. Please try again.",
+      });
     }
   };
 
+  if (!bike) return <div>Loading...</div>;
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Book Your Bike</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name Input */}
-        <div>
-          <label className="block font-medium">Name:</label>
-          <input
-            type="text"
-            value={bookingDetails.name}
-            onChange={(e) =>
-              setBookingDetails({ ...bookingDetails, name: e.target.value })
-            }
-            required
-            className="border p-2 w-full rounded"
-          />
-        </div>
+    <div className="container max-w-2xl mx-auto px-4 py-8">
+      <Card className="p-6">
+        {bike.purpose === 'both' ? (
+          <div className="mb-6">
+            <label className="block font-medium mb-2">Request Type</label>
+            <select 
+              className="border rounded p-2 w-full"
+              onChange={(e) => setBike({ ...bike, purpose: e.target.value })}
+              required
+            >
+              <option value="">Select request type</option>
+              <option value="sale">Purchase</option>
+              <option value="rent">Rent</option>
+            </select>
+          </div>
+        ) : (
+          <h1 className="text-2xl font-bold mb-6">
+            {bike.purpose === 'sale' ? 'Purchase' : 'Rent'} Request
+          </h1>
+        )}
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block font-medium mb-2">
+              Message to Seller
+            </label>
+            <Textarea
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              placeholder="Introduce yourself and let the seller know why you're interested..."
+              required
+            />
+          </div>
 
-        {/* Date Input */}
-        <div>
-          <label className="block font-medium">Date:</label>
-          <input
-            type="date"
-            value={bookingDetails.date}
-            onChange={(e) =>
-              setBookingDetails({ ...bookingDetails, date: e.target.value })
-            }
-            required
-            className="border p-2 w-full rounded"
-          />
-        </div>
+          {bike.purpose === 'rent' && (
+            <>
+              <div>
+                <label className="block font-medium mb-2">Start Date</label>
+                <input
+                  type="date"
+                  className="border rounded p-2 w-full"
+                  required
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    startDate: new Date(e.target.value)
+                  })}
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-2">End Date</label>
+                <input
+                  type="date"
+                  className="border rounded p-2 w-full"
+                  required
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    endDate: new Date(e.target.value)
+                  })}
+                />
+              </div>
+            </>
+          )}
 
-        {/* Duration Input */}
-        <div>
-          <label className="block font-medium">Duration (Days):</label>
-          <input
-            type="number"
-            min="1"
-            value={bookingDetails.duration}
-            onChange={(e) =>
-              setBookingDetails({
-                ...bookingDetails,
-                duration: parseInt(e.target.value) || 1, // Ensure it's a number
-              })
-            }
-            required
-            className="border p-2 w-full rounded"
-          />
-        </div>
-
-        {/* Submit Button */}
-        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
-          Confirm Booking
-        </button>
-      </form>
+          <div className="flex gap-4">
+            <Button type="submit" className="flex-1">
+              Send Request
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => navigate(-1)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 };

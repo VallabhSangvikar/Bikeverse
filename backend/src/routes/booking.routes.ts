@@ -14,7 +14,6 @@ router.post('/', roleCheck(['buyer']), bookingController.createBooking.bind(book
 router.get('/my-bookings', bookingController.getMyBookings.bind(bookingController));
 router.get('/:id', bookingController.getById.bind(bookingController));
 
-// Seller routes
-router.patch('/:id/status', roleCheck(['seller']), bookingController.updateStatus.bind(bookingController));
+router.patch('/:id/status', bookingController.updateStatus.bind(bookingController));
 
 export default router;
