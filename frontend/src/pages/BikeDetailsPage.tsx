@@ -7,12 +7,14 @@ import { getBikeById, Bike } from "../services/bikeService";
 const BikeDetailsPage = () => {
   const [bike, setBike] = useState<Bike | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<any[]>([]);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
       loadBikeDetails(id);
+      loadReviews(id);
     }
   }, [id]);
 
@@ -24,6 +26,16 @@ const BikeDetailsPage = () => {
       console.error("Error loading bike details:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadReviews = async (bikeId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/reviews/${bikeId}`);
+      const data = await response.json();
+      setReviews(data);
+    } catch (error) {
+      console.error("Error loading reviews:", error);
     }
   };
 
@@ -138,6 +150,34 @@ const BikeDetailsPage = () => {
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Reviews</h2>
+        {reviews.length === 0 ? (
+          <p className="text-gray-500">No reviews yet</p>
+        ) : (
+          <div className="space-y-4">
+            {reviews.map((review) => (
+              <Card key={review._id} className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-semibold">{review.reviewer.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-yellow-400">★</span>
+                    <span className="ml-1">{review.rating}</span>
+                  </div>
+                </div>
+                <p className="text-gray-700">{review.comment}</p>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

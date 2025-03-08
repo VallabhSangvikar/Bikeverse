@@ -34,6 +34,6 @@ const ReviewSchema: Schema = new Schema({
 });
 
 // Prevent duplicate reviews
-ReviewSchema.index({ booking: 1, reviewer: 1 }, { unique: true });
+ReviewSchema.index({ booking: 1 }, { unique: true });
 
 export default mongoose.model<IReview>('Review', ReviewSchema);
