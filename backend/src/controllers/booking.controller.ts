@@ -27,10 +27,8 @@ export class BookingController extends BaseController<IBooking> {
 
     async updateStatus(req: Request, res: Response, next: NextFunction) {
         try {
-            const { status,message } = req.body;
-            console.log(status);
-
-            const booking = await this.bookingService.updateBookingStatus(req.params.id, status,message);
+            const { status,message,price } = req.body;
+            const booking = await this.bookingService.updateBookingStatus(req.params.id, status,message,price);
             res.json(booking);
         } catch (error) {
             next(error);

@@ -34,19 +34,25 @@ export class BookingService extends BaseService<IBooking> {
         return booking;
     }
 
-    async updateBookingStatus(bookingId: string, status: IBooking['status'],message:string) {
+    async updateBookingStatus(bookingId: string, status: IBooking['status'],message:string,price:any) {
         const booking = await Booking.findById(bookingId);
         if (!booking) {
             throw new HttpException(404, 'Booking not found');
         }
-
+        
         booking.status = status;
+        if (!message) {
+            message = 'Price updated';
+        }
         const Existingmessage=booking.message;
         Existingmessage?.push(message);
         booking.message=Existingmessage;
-        if (status === 'completed' || status === 'cancelled') {
-            await this.bikeService.updateBikeStatus(booking.bike.toString(), 'available');
+        if(price){
+            booking.price=price;
         }
+        // if (status === 'completed' || status === 'cancelled') {
+        //     await this.bikeService.updateBikeStatus(booking.bike.toString(), 'available');
+        // }
 
         return booking.save();
     }

@@ -33,6 +33,18 @@ interface Seller {
   };
 }
 
+interface Buyer {
+  name: string;
+  phone: string;
+  email: string;
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+}
+
 interface BikeDetails {
   title: string;
   brand?: string;
@@ -53,6 +65,7 @@ interface Booking {
   message: string;
   bike: BikeDetails;
   seller: Seller;
+  buyer: Buyer;
   rentalDuration?: {
     startDate: string;
     endDate: string;
@@ -90,6 +103,12 @@ const BookPage = () => {
     booking: '',
   });
   const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [updateStatusId, setUpdateStatusId] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [newPrice, setNewPrice] = useState<number>(0);
+  const [updatePriceId, setUpdatePriceId] = useState<string | null>(null);
+  const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
+  const isSeller = userRole === 'seller';
 
   useEffect(() => {
     fetchBookings();
@@ -191,6 +210,82 @@ const BookPage = () => {
     }
   };
 
+  const handleUpdateStatus = async (status: 'accepted' | 'rejected' | 'completed') => {
+    if (!updateStatusId) return;
+    setIsSubmitting(true);
+    try {
+      await axios.patch(`http://localhost:3000/api/bookings/${updateStatusId}/status`,
+        { message: statusMessage, status },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      setBookings(bookings.map(booking =>
+        booking._id === updateStatusId
+          ? { ...booking, status }
+          : booking
+      ));
+
+      toast({
+        title: "Status Updated",
+        description: `Booking has been ${status} successfully.`,
+      });
+
+      setUpdateStatusId(null);
+      setStatusMessage('');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update status. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdatePrice = async () => {
+    if (!updatePriceId || !newPrice) return;
+    setIsSubmitting(true);
+    try {
+      await axios.patch(`http://localhost:3000/api/bookings/${updatePriceId}/status`,
+        { price: newPrice },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      setBookings(bookings.map(booking =>
+        booking._id === updatePriceId
+          ? { ...booking, price: newPrice }
+          : booking
+      ));
+
+      toast({
+        title: "Price Updated",
+        description: "Booking price has been updated successfully.",
+      });
+
+      setUpdatePriceId(null);
+      setNewPrice(0);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update price. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const toggleBookingDetails = (bookingId: string) => {
     setExpandedBooking(expandedBooking === bookingId ? null : bookingId);
   };
@@ -210,8 +305,11 @@ const BookPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+    {isSeller ? (
+      <h1 className="text-3xl font-bold mb-8">Your Orders</h1>
+    ) : (
       <h1 className="text-3xl font-bold mb-8">Your Bookings</h1>
-
+)}
       {bookings.length === 0 ? (
         <div className="text-center">
           <p className="text-xl mb-4">You have no bookings yet</p>
@@ -306,7 +404,7 @@ const BookPage = () => {
                               ₹{booking.price.toLocaleString()}
                             </p>
                             <div className="flex gap-2">
-                              {booking.status === 'completed' && (
+                              {!isSeller && booking.status === 'completed' && (
                                 <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
                                   <DialogTrigger asChild>
                                     <Button
@@ -391,61 +489,188 @@ const BookPage = () => {
                                   </DialogContent>
                                 </Dialog>
                               )}
-                              {(booking.status === 'pending' || booking.status === 'accepted') && (
-                                <Dialog open={cancelBookingId === booking._id} onOpenChange={(open) => {
-                                  if (!open) {
-                                    setCancelBookingId(null);
-                                    setCancelMessage('');
-                                  }
-                                }}>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={() => setCancelBookingId(booking._id)}
-                                    >
-                                      <Trash2 className="h-4 w-4 mr-2" />
-                                      Cancel Booking
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogHeader>
-                                      <DialogTitle>Cancel Booking</DialogTitle>
-                                      <DialogDescription>
-                                        Please provide a reason for cancellation. This will help us improve our service.
-                                      </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="space-y-4">
-                                      <p className="text-sm text-gray-600">
-                                        Please provide a reason for cancellation:
-                                      </p>
-                                      <Textarea
-                                        value={cancelMessage}
-                                        onChange={(e) => setCancelMessage(e.target.value)}
-                                        placeholder="Enter your reason for cancellation..."
-                                        className="min-h-[100px]"
-                                      />
-                                      <div className="flex justify-end gap-2">
+                              {isSeller ? (
+                                <>
+                                  {booking.status === 'pending' && (
+                                    <Dialog open={updateStatusId === booking._id} onOpenChange={(open) => {
+                                      if (!open) {
+                                        setUpdateStatusId(null);
+                                        setStatusMessage('');
+                                      }
+                                    }}>
+                                      <DialogTrigger asChild>
                                         <Button
                                           variant="outline"
+                                          size="sm"
+                                          onClick={() => setUpdateStatusId(booking._id)}
+                                        >
+                                          Update Status
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent>
+                                        <DialogHeader>
+                                          <DialogTitle>Update Booking Status</DialogTitle>
+                                          <DialogDescription>
+                                            Accept or reject or completed the booking request.
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4">
+                                          <Textarea
+                                            value={statusMessage}
+                                            onChange={(e) => setStatusMessage(e.target.value)}
+                                            placeholder="Enter a message for the buyer..."
+                                            className="min-h-[100px]"
+                                          />
+                                          <div className="flex justify-end gap-2">
+                                            <Button
+                                              variant="outline"
+                                              onClick={() => {
+                                                setUpdateStatusId(null);
+                                                setStatusMessage('');
+                                              }}
+                                            >
+                                              Cancel
+                                            </Button>
+                                            <Button
+                                              variant="destructive"
+                                              onClick={() => handleUpdateStatus('rejected')}
+                                              disabled={!statusMessage || isSubmitting}
+                                            >
+                                              Reject
+                                            </Button>
+                                            <Button
+                                              variant="default"
+                                              onClick={() => handleUpdateStatus('accepted')}
+                                              disabled={!statusMessage || isSubmitting}
+                                            >
+                                              Accept
+                                            </Button>
+                                            <Button
+                                              onClick={() => handleUpdateStatus('completed')}
+                                              disabled={!statusMessage || isSubmitting}
+                                            >
+                                              Complete
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
+                                  )}
+                                  
+                                  {booking.status === 'pending' && (
+                                    <Dialog open={updatePriceId === booking._id} onOpenChange={(open) => {
+                                      if (!open) {
+                                        setUpdatePriceId(null);
+                                        setNewPrice(0);
+                                      }
+                                    }}>
+                                      <DialogTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
                                           onClick={() => {
-                                            setCancelBookingId(null);
-                                            setCancelMessage('');
+                                            setUpdatePriceId(booking._id);
+                                            setNewPrice(booking.price);
                                           }}
                                         >
-                                          Cancel
+                                          Update Price
                                         </Button>
-                                        <Button
-                                          variant="destructive"
-                                          onClick={handleCancelBooking}
-                                          disabled={!cancelMessage || isSubmitting}
-                                        >
-                                          {isSubmitting ? "Cancelling..." : "Confirm Cancel"}
-                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent>
+                                        <DialogHeader>
+                                          <DialogTitle>Update Price</DialogTitle>
+                                          <DialogDescription>
+                                            Modify the booking price.
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4">
+                                          <input
+                                            type="number"
+                                            value={newPrice}
+                                            onChange={(e) => setNewPrice(Number(e.target.value))}
+                                            className="w-full p-2 border rounded"
+                                            min="0"
+                                          />
+                                          <div className="flex justify-end gap-2">
+                                            <Button
+                                              variant="outline"
+                                              onClick={() => {
+                                                setUpdatePriceId(null);
+                                                setNewPrice(0);
+                                              }}
+                                            >
+                                              Cancel
+                                            </Button>
+                                            <Button
+                                              onClick={handleUpdatePrice}
+                                              disabled={!newPrice || isSubmitting}
+                                            >
+                                              Update
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
+                                  )}
+                                </>
+                              ) : (
+                                // Existing cancel booking button for buyers
+                                (booking.status === 'pending' || booking.status === 'accepted') && (
+                                  <Dialog open={cancelBookingId === booking._id} onOpenChange={(open) => {
+                                    if (!open) {
+                                      setCancelBookingId(null);
+                                      setCancelMessage('');
+                                    }
+                                  }}>
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => setCancelBookingId(booking._id)}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Cancel Booking
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                      <DialogHeader>
+                                        <DialogTitle>Cancel Booking</DialogTitle>
+                                        <DialogDescription>
+                                          Please provide a reason for cancellation. This will help us improve our service.
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <div className="space-y-4">
+                                        <p className="text-sm text-gray-600">
+                                          Please provide a reason for cancellation:
+                                        </p>
+                                        <Textarea
+                                          value={cancelMessage}
+                                          onChange={(e) => setCancelMessage(e.target.value)}
+                                          placeholder="Enter your reason for cancellation..."
+                                          className="min-h-[100px]"
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                          <Button
+                                            variant="outline"
+                                            onClick={() => {
+                                              setCancelBookingId(null);
+                                              setCancelMessage('');
+                                            }}
+                                          >
+                                            Cancel
+                                          </Button>
+                                          <Button
+                                            variant="destructive"
+                                            onClick={handleCancelBooking}
+                                            disabled={!cancelMessage || isSubmitting}
+                                          >
+                                            {isSubmitting ? "Cancelling..." : "Confirm Cancel"}
+                                          </Button>
+                                        </div>
                                       </div>
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
+                                    </DialogContent>
+                                  </Dialog>
+                                )
                               )}
                               <Button
                                 variant="ghost"
@@ -463,25 +688,56 @@ const BookPage = () => {
 
                       {expandedBooking === booking._id && (
                         <div className="mt-4 pt-4 border-t">
-                          <h3 className="font-medium mb-4">Seller Details</h3>
+                          <h3 className="font-medium mb-4">
+                            {isSeller ? "Buyer Details" : "Seller Details"}
+                          </h3>
                           <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-4">
-                              <div>
-                                <p className="text-gray-600">Name:</p>
-                                <p className="font-medium">{booking.seller.name}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-600">Rating:</p>
-                                <p className="font-medium">{booking.seller.rating}/5</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-600">Phone:</p>
-                                <p className="font-medium">{booking.seller.phone}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-600">Email:</p>
-                                <p className="font-medium">{booking.seller.email}</p>
-                              </div>
+                              {isSeller ? (
+                                <>
+                                  <div>
+                                    <p className="text-gray-600">Name:</p>
+                                    <p className="font-medium">{booking.buyer.name}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-600">Phone:</p>
+                                    <p className="font-medium">{booking.buyer.phone}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-600">Email:</p>
+                                    <p className="font-medium">{booking.buyer.email}</p>
+                                  </div>
+                                  {booking.buyer.address && (
+                                    <div>
+                                      <p className="text-gray-600">Address:</p>
+                                      <p className="font-medium">{booking.buyer.address.street}</p>
+                                      <p className="font-medium">
+                                        {booking.buyer.address.city}, {booking.buyer.address.state}
+                                      </p>
+                                      <p className="font-medium">{booking.buyer.address.pincode}</p>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <div>
+                                    <p className="text-gray-600">Name:</p>
+                                    <p className="font-medium">{booking.seller.name}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-600">Rating:</p>
+                                    <p className="font-medium">{booking.seller.rating}/5</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-600">Phone:</p>
+                                    <p className="font-medium">{booking.seller.phone}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-600">Email:</p>
+                                    <p className="font-medium">{booking.seller.email}</p>
+                                  </div>
+                                </>
+                              )}
                             </div>
 
                             {(booking.status === 'completed' || booking.status === 'accepted') && (
