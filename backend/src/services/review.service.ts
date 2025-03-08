@@ -8,19 +8,12 @@ export class ReviewService extends BaseService<IReview> {
         super(Review);
     }
 
-    async createReview(reviewData: Partial<IReview>) {
-        // Check for existing review
-        const review = await Review.create(reviewData);
-        
-        // // Update seller's rating
-        // await this.updateSellerRating(reviewData.seller!.toString());
-        
-        return review;
-    }
     async getBikeReviews(bikeId: string) {
         return Review.find({ bike: bikeId }).populate('reviewer', 'username');
     }
-
+    async MyReviews(userId: string) {
+        return Review.find({ reviewer: userId }).populate('bike', 'name');
+    }
     private async updateSellerRating(sellerId: string) {
         const reviews = await Review.find({ seller: sellerId });
         if (!reviews.length) return;

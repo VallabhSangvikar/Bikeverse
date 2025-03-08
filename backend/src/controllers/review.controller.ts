@@ -40,14 +40,14 @@ export class ReviewController extends BaseController<IReview> {
             next(error);
         }
     }
-
-    async deleteReview(req: Request, res: Response, next: NextFunction) {
+    async getAllMyReviews(req: Request, res: Response, next: NextFunction) {
         try {
-            await this.reviewService.delete(req.params.id);
-            res.status(204).end();
+            const reviews = await this.reviewService.MyReviews(req.user.id);
+            res.status(200).json(reviews);
         } catch (error) {
             console.log(error);
             next(error);
         }
     }
+
 }

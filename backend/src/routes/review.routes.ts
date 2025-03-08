@@ -10,6 +10,7 @@ router.get("/:bikeid", reviewController.getBikeReviews.bind(reviewController));
 
 router.use(authMiddleware);
 
+router.get("/myreviews", reviewController.getAllMyReviews.bind(reviewController));
 router.post("/", reviewController.createReview.bind(reviewController));
 router.put("/:id", reviewController.updateReview.bind(reviewController));
 
