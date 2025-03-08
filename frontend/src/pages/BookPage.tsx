@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useBooking } from "../context/BookingContext";
 import { Button } from "../components/ui/button";
-import { Trash2, Calendar, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Trash2, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useToast } from "../hooks/use-toast";
@@ -61,7 +60,6 @@ interface Booking {
 }
 
 const BookPage = () => {
-  const { removeBooking } = useBooking();
   const navigate = useNavigate();
   const { toast } = useToast();
   
