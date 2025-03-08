@@ -10,21 +10,15 @@ export class ReviewService extends BaseService<IReview> {
 
     async createReview(reviewData: Partial<IReview>) {
         // Check for existing review
-        const existingReview = await Review.findOne({
-            reviewer: reviewData.reviewer,
-            bike: reviewData.bike
-        });
-
-        if (existingReview) {
-            throw new HttpException(400, 'You have already reviewed this bike');
-        }
-
         const review = await Review.create(reviewData);
         
-        // Update seller's rating
-        await this.updateSellerRating(reviewData.seller!.toString());
+        // // Update seller's rating
+        // await this.updateSellerRating(reviewData.seller!.toString());
         
         return review;
+    }
+    async getBikeReviews(bikeId: string) {
+        return Review.find({ bike: bikeId }).populate('reviewer', 'username');
     }
 
     private async updateSellerRating(sellerId: string) {
