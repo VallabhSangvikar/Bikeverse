@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Trash2, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Trash2, ChevronDown, ChevronUp, ExternalLink, StarIcon } from "lucide-react";
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useToast } from "../hooks/use-toast";
@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "../components/ui/dialog";
 import { Textarea } from "../components/ui/textarea";
@@ -59,6 +60,16 @@ interface Booking {
   createdAt: string;
 }
 
+interface ReviewForm {
+  seller: string;
+  reviewer: string;
+  bike: string;
+  rating: number;
+  comment: string;
+  transactionType: 'rental' | 'purchase';
+  booking: string;
+}
+
 const BookPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -69,6 +80,16 @@ const BookPage = () => {
   const [cancelBookingId, setCancelBookingId] = useState<string | null>(null);
   const [cancelMessage, setCancelMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviewForm, setReviewForm] = useState<ReviewForm>({
+    rating: 0,
+    comment: '',
+    bike:'',
+    seller: '',
+    reviewer: '',
+    transactionType: 'purchase',
+    booking: '',
+  });
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -126,6 +147,43 @@ const BookPage = () => {
       toast({
         title: "Error",
         description: "Failed to cancel booking. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewForm.bike) return;
+    setIsSubmitting(true);
+    try {
+      await axios.post('http://localhost:3000/api/reviews', 
+        reviewForm,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
+      toast({
+        title: "Review Submitted",
+        description: "Thank you for your feedback!",
+      });
+      
+      setShowReviewDialog(false);
+      setReviewForm({rating: 0,
+        comment: '',
+        bike:'',
+        seller: '',
+        reviewer: '',
+        transactionType: 'purchase',booking: ''});
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "You already reviewed or Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -248,6 +306,91 @@ const BookPage = () => {
                               ₹{booking.price.toLocaleString()}
                             </p>
                             <div className="flex gap-2">
+                              {booking.status === 'completed' && (
+                                <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        setReviewForm({
+                                          bike: booking.bike._id,
+                                          seller: booking.seller._id,
+                                          rating: 0,
+                                          comment: '',
+                                          reviewer: '', // This will be set by the backend
+                                          transactionType: booking.type, // Use the booking type directly,
+                                          booking: booking._id
+                                        });
+                                        setShowReviewDialog(true);
+                                      }}
+                                    >
+                                      <StarIcon className="h-4 w-4 mr-2" />
+                                      Write Review
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Write a Review</DialogTitle>
+                                      <DialogDescription>
+                                        Share your experience about the bike and service. Your feedback helps others make better decisions.
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                      <div>
+                                        <label className="block text-sm font-medium mb-2">Rating</label>
+                                        <div className="flex gap-2">
+                                          {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                              key={star}
+                                              type="button"
+                                              onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                                              className={`p-1 rounded-full hover:bg-gray-100 transition-colors
+                                                ${reviewForm.rating >= star ? 'text-yellow-400' : 'text-gray-300'}`}
+                                            >
+                                              <StarIcon className="h-6 w-6" />
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-medium mb-2">Comment</label>
+                                        <Textarea
+                                          value={reviewForm.comment}
+                                          onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                                          placeholder="Share your experience..."
+                                          className="min-h-[100px]"
+                                        />
+                                      </div>
+                                      <div className="flex justify-end gap-2">
+                                        <Button
+                                          variant="outline"
+                                          onClick={() => {
+                                            setShowReviewDialog(false);
+                                            setReviewForm({
+                                              rating: 0,
+                                              comment: '',
+                                              bike: '',
+                                              seller: '',
+                                              reviewer: '',
+                                              transactionType: 'purchase',
+                                              booking: ''
+                                            });
+                                          }}
+                                        >
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          onClick={handleSubmitReview}
+                                          disabled={!reviewForm.rating || !reviewForm.comment || isSubmitting}
+                                        >
+                                          {isSubmitting ? "Submitting..." : "Submit Review"}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              )}
                               {(booking.status === 'pending' || booking.status === 'accepted') && (
                                 <Dialog open={cancelBookingId === booking._id} onOpenChange={(open) => {
                                   if (!open) {
@@ -268,6 +411,9 @@ const BookPage = () => {
                                   <DialogContent>
                                     <DialogHeader>
                                       <DialogTitle>Cancel Booking</DialogTitle>
+                                      <DialogDescription>
+                                        Please provide a reason for cancellation. This will help us improve our service.
+                                      </DialogDescription>
                                     </DialogHeader>
                                     <div className="space-y-4">
                                       <p className="text-sm text-gray-600">

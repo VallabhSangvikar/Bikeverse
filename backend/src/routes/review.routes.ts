@@ -14,3 +14,5 @@ router.get("/myreviews", reviewController.getAllMyReviews.bind(reviewController)
 router.post("/", reviewController.createReview.bind(reviewController));
 router.put("/:id", reviewController.updateReview.bind(reviewController));
 
+export default router;
+
