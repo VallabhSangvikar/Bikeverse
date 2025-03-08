@@ -31,6 +31,11 @@ const Header = () => {
               {user ? (
                 <>
                   <li>
+                    <Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li>
                     <Button onClick={logout} variant="secondary">
                       Logout
                     </Button>

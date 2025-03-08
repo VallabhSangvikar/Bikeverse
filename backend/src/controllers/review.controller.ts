@@ -14,6 +14,7 @@ export class ReviewController extends BaseController<IReview> {
 
     async createReview(req: Request, res: Response, next: NextFunction) {
         try {
+            req.body.reviewer = req.user.id;
             const review = await this.reviewService.create(req.body);
             res.status(201).json(review);
         } catch (error) {

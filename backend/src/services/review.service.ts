@@ -9,10 +9,10 @@ export class ReviewService extends BaseService<IReview> {
     }
 
     async getBikeReviews(bikeId: string) {
-        return Review.find({ bike: bikeId }).populate('reviewer', 'username');
+        return Review.find({ bike: bikeId }).populate('reviewer', 'name');
     }
     async MyReviews(userId: string) {
-        return Review.find({ reviewer: userId }).populate('bike', 'name');
+        return Review.find({ reviewer: userId }).populate('bike', 'title images').populate('seller', 'name');
     }
     private async updateSellerRating(sellerId: string) {
         const reviews = await Review.find({ seller: sellerId });

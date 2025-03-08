@@ -5,12 +5,17 @@ import { authMiddleware, roleCheck } from "../middleware/auth.middleware";
 const router = Router();
 const reviewController = new ReviewController();
 
-// Public routes (accessible to all users)
+
+router.get("/my-reviews",authMiddleware, reviewController.getAllMyReviews.bind(reviewController));
 router.get("/:bikeid", reviewController.getBikeReviews.bind(reviewController));
 
 router.use(authMiddleware);
 
-router.get("/myreviews", reviewController.getAllMyReviews.bind(reviewController));
+// Protected routes - specific paths first
 router.post("/", reviewController.createReview.bind(reviewController));
 router.put("/:id", reviewController.updateReview.bind(reviewController));
+
+// Public routes with parameters last
+
+export default router;
 
