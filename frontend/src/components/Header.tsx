@@ -23,9 +23,22 @@ const Header = () => {
                 <Link to="/mybikes" className="text-muted-foreground hover:text-primary transition-colors">
                   MyBikes
                 </Link>) : (
-                <Link to="/home" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/home" className="text-muted-foreground hover:text-primary transition-colors ">
                   Home
                 </Link>)}
+              </li>
+              <li>
+                <Link 
+                  to="/bookings" 
+                  className="relative flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors p-2 rounded-full hover:bg-secondary"
+                >
+                  <Calendar className="w-5 h-5" />
+                  {bookings.length > 0 ? (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {bookings.length}
+                    </span>
+                  ):<span>Bookings</span>}
+                </Link>
               </li>
               {user ? (
                 <>
@@ -54,19 +67,7 @@ const Header = () => {
                   </li>
                 </>
               )}
-              <li>
-                <Link 
-                  to="/bookings" 
-                  className="relative flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors p-2 rounded-full hover:bg-secondary"
-                >
-                  <Calendar className="w-5 h-5" />
-                  {bookings.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {bookings.length}
-                    </span>
-                  )}
-                </Link>
-              </li>
+              
             </ul>
           </nav>
         </div>

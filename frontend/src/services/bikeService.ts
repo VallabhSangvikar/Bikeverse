@@ -42,3 +42,11 @@ export const getBikeById = async (id: string) => {
   const response = await axios.get(`${API_URL}/${id}`);
   return response.data;
 };
+
+// Add these new functions
+export const getBikesToCompare = async (bikeIds: string[]) => {
+  const bikes = await Promise.all(
+    bikeIds.map(id => getBikeById(id))
+  );
+  return bikes;
+};

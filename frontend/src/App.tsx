@@ -11,6 +11,9 @@ import { Toaster } from "./components/ui/toaster";
 import { useAuth } from "./context/AuthContext";
 import BikeDetailsPage from "./pages/BikeDetailsPage";
 import DashboardPage from "./pages/DashboardPage";
+import MyBikesPage from "./pages/MyBikesPage";
+import ComparisonPage from "./pages/ComparisonPage";
+
 // Protected route component
 const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
   const { user, loading } = useAuth();
@@ -74,6 +77,12 @@ function App() {
               <SetupPage />
             </SetupRoute>
           } />
+          <Route path="/mybikes" element={
+            // <ProtectedRoute>  
+              <MyBikesPage />
+            // </ProtectedRoute>
+          } />
+          <Route path="/compare" element={<ComparisonPage />} />
         </Routes>
       </main>
       <Footer />
