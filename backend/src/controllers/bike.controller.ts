@@ -30,6 +30,13 @@ export class BikeController extends BaseController<IBike> {
             next(error);
         }
     }
-
+    async getBySeller(req: Request, res: Response, next: NextFunction) {
+        try {
+            const bikes = await this.bikeService.getBySeller(req.user.id);
+            res.json(bikes);
+        } catch (error) {
+            next(error);
+        }
+    }
     
 }

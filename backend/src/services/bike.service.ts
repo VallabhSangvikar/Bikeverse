@@ -42,4 +42,8 @@ export class BikeService extends BaseService<IBike> {
         bike.status = status;
         return bike.save();
     }
+    async getBySeller(sellerId: string) {
+        const bikes= await Bike.find({ seller: sellerId });
+        return bikes;
+    }
 }

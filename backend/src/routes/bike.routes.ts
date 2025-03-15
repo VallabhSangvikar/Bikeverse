@@ -6,6 +6,7 @@ const router = Router();
 const bikeController = new BikeController();
 
 // Public routes (accessible to all users)
+router.get("/seller",authMiddleware, roleCheck(["seller"]), bikeController.getBySeller.bind(bikeController));
 router.get("/search", bikeController.search.bind(bikeController));
 router.get("/:id", bikeController.getById.bind(bikeController));
 router.get("/", bikeController.getAll.bind(bikeController)); // Get all bikes
