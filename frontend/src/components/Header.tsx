@@ -19,14 +19,13 @@ const Header = () => {
           <nav className="hidden md:block">
             <ul className="flex items-center gap-6">
               <li>
+                {user && user.role === "seller" ? (
+                <Link to="/mybikes" className="text-muted-foreground hover:text-primary transition-colors">
+                  MyBikes
+                </Link>) : (
                 <Link to="/home" className="text-muted-foreground hover:text-primary transition-colors">
-                  Bikes
-                </Link>
-              </li>
-              <li>
-                <Link to="/posts" className="text-muted-foreground hover:text-primary transition-colors">
-                  Posts
-                </Link>
+                  Home
+                </Link>)}
               </li>
               {user ? (
                 <>

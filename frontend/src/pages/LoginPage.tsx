@@ -18,7 +18,7 @@ const LoginPage = () => {
         navigate("/setup")
       } else {
         // Otherwise redirect to appropriate dashboard
-        navigate(user.role === "seller" ? "/seller" : "/")
+        navigate(user.role === "seller" ? "/mybikes" : "/")
       }
     }
   }, [user, navigate])

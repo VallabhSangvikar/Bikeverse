@@ -4,14 +4,12 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import BookingForm from "./pages/BookingForm";
 import BookPage from "./pages/BookPage";
-import SellerDashboardPage from "./pages/SellerDashboardPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage"; 
 import SetupPage from "./pages/SetupPage";
 import { Toaster } from "./components/ui/toaster";
 import { useAuth } from "./context/AuthContext";
 import BikeDetailsPage from "./pages/BikeDetailsPage";
-import PostsPage from "./pages/PostsPage";
 import DashboardPage from "./pages/DashboardPage";
 // Protected route component
 const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
@@ -69,14 +67,8 @@ function App() {
               <BookPage />
             // </ProtectedRoute>
           } />
-          <Route path="/seller" element={
-            <ProtectedRoute>
-              <SellerDashboardPage />
-            </ProtectedRoute>
-          } />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/posts" element={<PostsPage />} /> {/* ✅ New Route */}
           <Route path="/setup" element={
             <SetupRoute>
               <SetupPage />
